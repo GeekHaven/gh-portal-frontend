@@ -1,5 +1,5 @@
 'use client';
-import { Box, SimpleGrid, Text } from '@chakra-ui/react';
+import { Box, SimpleGrid, Text , useColorModeValue } from '@chakra-ui/react';
 import ColumnsTable from 'views/admin/dataTables/components/ColumnsTable';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
@@ -59,7 +59,7 @@ export default function EventName({
         fontSize="2xl"
         fontWeight="bold"
         mb={6}
-        color="white"
+        color={useColorModeValue("secondaryGray.900", "gray.100")}
         textShadow="0px 0px 10px rgba(0,0,0,0.3)"
       >
         Total Participants: {participantCount}
