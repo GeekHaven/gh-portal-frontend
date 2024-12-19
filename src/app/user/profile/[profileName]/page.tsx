@@ -1,75 +1,25 @@
 'use client';
 
-import { Box, Grid } from '@chakra-ui/react';
+import { Box, Grid, Text, Flex, useColorMode } from '@chakra-ui/react';
 import Banner from 'views/admin/profile/components/Banner';
 import General from 'views/admin/profile/components/General';
 import Projects from 'views/admin/profile/components/Projects';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { otherUserProfile } from 'api/profile/profile';
+import { getUserProfileByName } from 'api/profile/profile';
 import { RingLoader } from 'react-spinners';
-import { FetchedLeaderboard } from 'api/leaderboard/leaderboard';
-
-interface PullRequest {
-  prNumber: number;
-  status: string;
-  title: string;
-  issue: {
-    issueNumber: number;
-    currentPoints: number;
-  };
-}
-
-interface ProfileData {
-  name: string;
-  email: string;
-  college: string;
-  avatarUrl: string;
-  githubId: string;
-  discordId: string;
-  PR: PullRequest[]; // Update this with the actual type of PR array
-  //prMerged: number;
-  //pointsEarned: number;
-}
+import { ProfileData } from '../page';
 
 export default function ProfileOverviewOther({
-  params,
+  params: { profileName },
 }: {
   params: { profileName: string };
 }) {
-  const profileName = params.profileName;
-  const [TempData, setTempData] = useState<ProfileData | undefined>(undefined);
-  const [points, setPoints] = useState<number>(0);
-  const [prMerged, setPrMerged] = useState<number>(0);
-
-  const { data: profileData, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ data: ProfileData }>({
     queryKey: ['profileInfo'],
-    queryFn: () => otherUserProfile(profileName),
+    queryFn: () => getUserProfileByName(profileName),
   });
-
-  useEffect(() => {
-    async function fetchPointsAndPr() {
-      try {
-        const leaderboard = await FetchedLeaderboard(
-          process.env.NEXT_PUBLIC_EVENT_NAME,
-        );
-        const user = leaderboard.find(
-          (entry) => entry.githubid === profileName,
-        );
-        setPoints(user?.points ? parseInt(user.points, 10) : 0);
-        setPrMerged(user?.prmerged ? parseInt(user.prmerged, 10) : 0);
-      } catch (error) {
-        console.error('Error fetching leaderboard points:', error);
-      }
-    }
-    fetchPointsAndPr();
-  }, [profileName]);
-
-  useEffect(() => {
-    if (profileData) {
-      setTempData(profileData.data);
-    }
-  }, [profileData]);
+  const profileData = data?.data;
+  const { colorMode } = useColorMode();
 
   if (isLoading) {
     return (
@@ -81,6 +31,29 @@ export default function ProfileOverviewOther({
 
   return (
     <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
+      {/* Top Banner */}
+      <Flex
+        bg={colorMode === 'light' ? 'white' : 'navy.700'}
+        color={colorMode === 'light' ? 'gray.900' : 'white'}
+        justify="center"
+        align="center"
+        p="15px"
+        textAlign="center"
+        mb="15px"
+      >
+        <Text fontSize="m" fontWeight="bold">
+          Please join the Discord server for further communication regarding
+          Opencode&apos;24. Discord server link: {' '}
+          <a
+            href="https://bit.ly/oc-discord"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: 'underline' }}
+          >
+            https://bit.ly/oc-discord
+          </a>
+        </Text>
+      </Flex>
       {/* Main Fields */}
       <Grid
         templateColumns={{
@@ -95,13 +68,13 @@ export default function ProfileOverviewOther({
       >
         <Banner
           gridArea="1 / 4 / 4 / 1"
-          banner={TempData?.avatarUrl}
-          avatar={TempData?.avatarUrl}
-          name={TempData?.name}
-          githubUrl={TempData?.githubId}
-          prMerged={prMerged || 0}
-          prContributed={TempData?.PR?.length}
-          pointsEarned={points || 0}
+          banner={profileData?.avatarUrl}
+          avatar={profileData?.avatarUrl}
+          name={profileData?.name}
+          githubUrl={profileData?.githubId}
+          prMerged={profileData.prMerged || 0}
+          prContributed={profileData?.PR?.length}
+          pointsEarned={profileData.points || 0}
         />
       </Grid>
       <Grid
@@ -116,19 +89,19 @@ export default function ProfileOverviewOther({
         }}
         gap={{ base: '20px', xl: '20px' }}
       >
-        {TempData?.PR ? (
-          <Projects name={profileName} />
+        {profileData?.PR ? (
+          <Projects PRs={profileData.PR} />
         ) : (
           <div className="flex justify-center items-center text-xl">
             Sign in to view recent PRs
           </div>
         )}
         <General
-          name={TempData?.name}
-          githubId={TempData?.githubId}
-          college={TempData?.college}
-          discordId={TempData?.discordId}
-          email={TempData?.email}
+          name={profileData?.name}
+          githubId={profileData?.githubId}
+          college={profileData?.college}
+          discordId={profileData?.discordId}
+          email={profileData?.email}
           gridArea={{ base: '2 / 1 / 3 / 2', lg: '1 / 2 / 2 / 3' }}
           minH="365px"
           pe="20px"

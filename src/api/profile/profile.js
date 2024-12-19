@@ -1,7 +1,5 @@
-export async function FetchedData() {
-  const querystring = window.location.search;
-  const urlParam = new URLSearchParams(querystring);
-  const token = urlParam.get('token');
+export async function fetchLoggedInBasicDetails() {
+  const token = localStorage.getItem('token');
   if (token === null) {
     auth.check_login();
   } else {
@@ -16,13 +14,9 @@ export async function FetchedData() {
     if (!response.ok) {
       throw new Error('Failed to fetch user info');
     }
-
-    const newData = await response.json();
-
-    localStorage.setItem('GithubData', JSON.stringify(newData));
-    console.log(GithubData);
-
-    return newData;
+    const data = (await response.json()).data;
+    localStorage.setItem('user', JSON.stringify(data));
+    return data;
   }
 }
 
@@ -52,19 +46,7 @@ export async function sendRegData(formData) {
   }
 }
 
-//   const[TempData,setTempData] = useState(' ');
-
-//   useEffect(() => {
-//     const GitDatalocal = localStorage.getItem('GithubData');
-//     const ParseData = JSON.parse(GitDatalocal);
-//     setTempData(ParseData);
-//   }, []);
-
-//   console.log(TempData)
-
-// Paste on any page you want the fetch data
-
-export async function otherUserProfile(profileName) {
+export async function getUserProfileByName(profileName) {
   const token = localStorage.getItem('token');
 
   const response = await fetch(
@@ -77,37 +59,9 @@ export async function otherUserProfile(profileName) {
       },
     },
   );
-
   if (!response.ok) {
     throw new Error('Failed to fetch user info');
   }
 
-  const OtherProfile = await response.json();
-
-  return OtherProfile;
-}
-
-export async function getPRDetails(name) {
-  const token = localStorage.getItem('token');
-
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/participant/${name}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch user info');
-  }
-
-  const prDetails = await response.json();
-
-  const filPR = prDetails.data.PR;
-
-  return filPR;
+  return response.json();
 }

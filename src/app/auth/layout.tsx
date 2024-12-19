@@ -6,9 +6,6 @@ import { Box, useColorModeValue } from '@chakra-ui/react';
 
 // Layout components
 import { SidebarContext } from 'contexts/SidebarContext';
-import { isWindowAvailable } from 'utils/navigation';
-
-// Custom Chakra theme
 
 interface AuthProps extends PropsWithChildren {}
 
@@ -16,7 +13,6 @@ export default function AuthLayout({ children }: AuthProps) {
   // states and functions
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const authBg = useColorModeValue('white', 'navy.900');
-  if (isWindowAvailable()) document.documentElement.dir = 'ltr';
   return (
     <Box>
       <SidebarContext.Provider
