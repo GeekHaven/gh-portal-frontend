@@ -2,6 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { fetchMyTasks } from 'api/tasks/tasks';
+import TaskItem from './TaskItem';
+import styles from './tasks.module.css';
 
 type TaskListProps = {
   eventName: string;
@@ -33,22 +35,18 @@ export default function TaskList({ eventName }: TaskListProps) {
   }
 
   return (
-    <div>
-      {tasks.map((task) => (
-        <div key={task.id}>
-          <h3>{task.title}</h3>
+    <section>
+      <header>
+        <span>任務</span>
+        <h1>Tasks</h1>
+        <p>Complete your trials and earn GeekCoins.</p>
+      </header>
 
-          {task.description && <p>{task.description}</p>}
-
-          <p>
-            {task.progress} / {task.target}
-          </p>
-
-          <p>+{task.reward} GeekCoins</p>
-
-          <p>{task.status}</p>
-        </div>
-      ))}
-    </div>
+      <div className={styles.taskList}>
+        {tasks.map((task, index) => (
+          <TaskItem key={task.id} task={task} index={index} />
+        ))}
+      </div>
+    </section>
   );
 }
