@@ -46,6 +46,8 @@ export async function fetchMyTasks(
   }
 
   const responseData = await response.json();
+  console.log('TASK API RESPONSE:', responseData);
+  console.log('TASK DATA:', responseData.message?.tasks);
 
   return responseData.message;
 }

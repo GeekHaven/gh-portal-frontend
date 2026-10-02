@@ -1,0 +1,175 @@
+.page {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+  padding: 56px 32px 100px;
+}
+
+/* ─────────────────────────────────────────
+   Header
+   ───────────────────────────────────────── */
+
+.header {
+  position: relative;
+
+  margin-bottom: 42px;
+}
+
+.eyebrow {
+  margin-bottom: 14px;
+
+  font-size: 10px;
+  letter-spacing: 0.28em;
+
+  color: rgba(242, 198, 210, 0.65);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+.title {
+  margin: 0;
+
+  font-size: clamp(42px, 6vw, 68px);
+  font-weight: 600;
+
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.japaneseTitle {
+  margin: 8px 0 0;
+
+  font-family: serif;
+
+  font-size: 24px;
+  letter-spacing: 0.25em;
+
+  color: rgba(217, 143, 163, 0.8);
+}
+
+.description {
+  max-width: 520px;
+
+  margin: 24px 0 0;
+
+  font-size: 14px;
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.48);
+}
+
+/* ─────────────────────────────────────────
+   Sakura mark
+   ───────────────────────────────────────── */
+
+.sakura {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 72px;
+  height: 72px;
+
+  font-family: serif;
+  font-size: 28px;
+
+  color: rgba(242, 198, 210, 0.7);
+
+  border: 1px solid rgba(217, 143, 163, 0.28);
+
+  transform: rotate(-8deg);
+}
+
+.sakura::before {
+  content: '';
+
+  position: absolute;
+
+  inset: 7px;
+
+  border: 1px solid rgba(217, 143, 163, 0.12);
+}
+
+/* ─────────────────────────────────────────
+   Divider
+   ───────────────────────────────────────── */
+
+.divider {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 32px;
+}
+
+.divider span:first-child,
+.divider span:last-child {
+  height: 1px;
+
+  flex: 1;
+
+  background: linear-gradient(
+    to right,
+    rgba(217, 143, 163, 0.3),
+    rgba(255, 255, 255, 0.06)
+  );
+}
+
+.divider span:last-child {
+  background: linear-gradient(
+    to left,
+    rgba(217, 143, 163, 0.3),
+    rgba(255, 255, 255, 0.06)
+  );
+}
+
+.dividerMark {
+  font-size: 10px;
+
+  color: rgba(217, 143, 163, 0.65);
+}
+
+/* ─────────────────────────────────────────
+   Tasks
+   ───────────────────────────────────────── */
+
+.tasksSection {
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────
+   Mobile
+   ───────────────────────────────────────── */
+
+@media (max-width: 700px) {
+  .page {
+    padding: 36px 18px 70px;
+  }
+
+  .titleRow {
+    align-items: center;
+  }
+
+  .sakura {
+    width: 54px;
+    height: 54px;
+
+    font-size: 22px;
+  }
+
+  .description {
+    margin-top: 18px;
+  }
+}

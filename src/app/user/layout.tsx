@@ -3,13 +3,22 @@
 import { PropsWithChildren, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { CalendarDays, Trophy, Flag, FolderGit2, UserRound, ArrowUpRight } from 'lucide-react';
+import {
+  CalendarDays,
+  Trophy,
+  Flag,
+  FolderGit2,
+  UserRound,
+  ArrowUpRight,
+  ListCheck,
+} from 'lucide-react';
 import JapaneseBackground from 'components/japanese/JapaneseBackground';
 import SiteNavbar from 'components/navbar/SiteNavbar';
 import { useAuth } from 'contexts/AuthContext';
 
 const sections = [
   { label: 'Events', href: '/user/home', icon: CalendarDays },
+  { label: 'Tasks', href: '/user/tasks', icon: ListCheck },
   { label: 'Leaderboard', href: '/user/leaderboard', icon: Trophy },
   { label: 'Winners', href: '/user/winners', icon: Trophy },
   { label: 'Milestones', href: '/user/milestones', icon: Flag },
@@ -20,20 +29,49 @@ const sections = [
 export default function UserLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const auth = useAuth();
-  useEffect(() => { auth.check_login(); }, [auth]);
-  const variant = pathname.includes('/profile') ? 'profile' : pathname.includes('/milestones') ? 'milestones' : pathname.includes('/winners') ? 'winners' : pathname.includes('/leaderboard') ? 'leaderboard' : 'events';
+  useEffect(() => {
+    auth.check_login();
+  }, [auth]);
+  const variant = pathname.includes('/profile')
+    ? 'profile'
+    : pathname.includes('/milestones')
+      ? 'milestones'
+      : pathname.includes('/winners')
+        ? 'winners'
+        : pathname.includes('/leaderboard')
+          ? 'leaderboard'
+          : 'events';
 
   return (
     <JapaneseBackground variant={variant}>
       <SiteNavbar />
       <div className="oc-community-nav">
         <nav aria-label="Community navigation">
-          {sections.map(({ label, href, icon: Icon }) => <Link key={href} href={href} aria-current={pathname.startsWith(href) ? 'page' : undefined}><Icon size={15} />{label}</Link>)}
+          {sections.map(({ label, href, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={pathname.startsWith(href) ? 'page' : undefined}
+            >
+              <Icon size={15} />
+              {label}
+            </Link>
+          ))}
         </nav>
         <span className="oc-community-label">A SEASON OF POSSIBILITIES</span>
       </div>
-      <main className="oc-main" id="main-content">{children}</main>
-      <footer className="oc-footer"><span>OPENCODE 2026 <span className="oc-footer-dot">/</span> Built together. Open to everyone.</span><Link href="/faq">A little guidance <ArrowUpRight size={14} /></Link></footer>
+      <main className="oc-main" id="main-content">
+        {children}
+      </main>
+      <footer className="oc-footer">
+        <span>
+          OPENCODE 2026 <span className="oc-footer-dot">/</span> Built together.
+          Open to everyone.
+        </span>
+        <Link href="/faq">
+          A little guidance <ArrowUpRight size={14} />
+        </Link>
+      </footer>
     </JapaneseBackground>
   );
 }
