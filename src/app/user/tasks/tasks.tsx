@@ -33,7 +33,7 @@ export default function TasksPage() {
 
       {/* Tasks */}
       <section className={styles.tasksSection}>
-        <TaskList eventName="opencode" />
+        <TaskList eventName={process.env.NEXT_PUBLIC_EVENT_NAME!} />
       </section>
     </main>
   );
