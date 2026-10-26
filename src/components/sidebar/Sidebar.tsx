@@ -67,10 +67,9 @@ function Sidebar({ routes }: SidebarProps) {
         ref={sidebarRef}
         w="300px"
         h="100vh"
-        bg={opencodeTokens.colors.background.glassDark}
-        backdropFilter="blur(24px)"
-        boxShadow="var(--shadow)"
-        borderRight={`1px solid ${opencodeTokens.colors.border.light}`}
+        bg="var(--surface)"
+        boxShadow="none"
+        borderRight="1px solid var(--border)"
       >
         <Link href="/">
           <Flex
@@ -78,19 +77,18 @@ function Sidebar({ routes }: SidebarProps) {
             align="center"
             px="32px"
             gap="10px"
-            color={opencodeTokens.colors.text.primary}
-            _hover={{ color: opencodeTokens.colors.accent.sakura }}
-            transition="all 0.3s"
+            color="var(--fg)"
+            _hover={{ color: 'var(--accent)' }}
+            transition="color 0.2s"
             cursor="pointer"
           >
-            <Flower2 size={24} strokeWidth={1.5} />
-            <Text fontSize="20px" fontWeight="700" letterSpacing="0.05em">
+            <Text fontSize="18px" fontWeight="700" letterSpacing="0.08em" fontFamily="var(--f-display)">
               GEEKHAVEN
             </Text>
           </Flex>
         </Link>
 
-        <Divider borderColor={opencodeTokens.colors.border.light} opacity={0.5} />
+        <Divider borderColor="var(--border)" opacity={1} />
 
         <Scrollbars autoHide>
           <Box px="20px" pt="24px">

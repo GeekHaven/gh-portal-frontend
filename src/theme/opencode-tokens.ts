@@ -1,31 +1,46 @@
+/**
+ * OpenCode 2026 - Japanese Editorial & Minimalist Design Tokens
+ * Principles: Ma (間, negative space), Kanso (簡素, simplicity), Seijaku (静寂, calm restraint)
+ * Accent: Vermilion / Shu (#C8412B) - single signature accent token
+ */
+
 export const opencodeTokens = {
   colors: {
-    // Backgrounds
+    // Backgrounds & Surfaces (Warm Washi & Natural Paper)
     background: {
       base: 'var(--bg)',
       surface: 'var(--surface)',
-      glass: 'var(--surface)',
-      glassLight: 'var(--surface-2)',
-      glassDark: 'var(--card-bg)',
+      surfaceRaised: 'var(--surface-raised)',
+      subtle: 'var(--surface-subtle)',
+      glassDark: 'var(--surface)',
+      glassLight: 'var(--surface-subtle)',
     },
-    // Primary Accents
+    // Single Accent: Vermilion / Shu (#C8412B)
     accent: {
+      primary: 'var(--accent)',
+      hover: 'var(--accent-hover)',
+      soft: 'var(--accent-soft)',
+      ink: 'var(--accent-ink)',
+      hairline: 'var(--accent-hairline)',
       sakura: 'var(--accent)',
       sakuraHover: 'var(--accent-hover)',
-      ivory: 'var(--text)',
-      purple: 'var(--accent)',
-      purpleHover: 'var(--accent-hover)',
-      purpleMuted: 'var(--accent-soft)',
-      ember: 'var(--ember)',
-      emberLight: 'var(--ember)',
     },
-    // Secondary & Accent Colors
-    secondary: {
-      default: 'var(--secondary)',
-      hover: 'var(--secondary-hover)',
-      soft: 'var(--secondary-soft)',
-      border: 'var(--secondary-border)',
+    // Neutral Text Hierarchy (Sumi Ink)
+    text: {
+      primary: 'var(--fg)',
+      secondary: 'var(--muted)',
+      subtle: 'var(--subtle)',
+      inverse: 'var(--accent-ink)',
     },
+    // Hairline Dividers & Borders
+    border: {
+      light: 'var(--border-light)',
+      primary: 'var(--border)',
+      medium: 'var(--border)',
+      strong: 'var(--border-strong)',
+      accent: 'var(--border-accent)',
+    },
+    // Status Indicators (Subtle & Dignified, No Neon)
     status: {
       live: {
         bg: 'var(--status-live-bg)',
@@ -43,53 +58,47 @@ export const opencodeTokens = {
         border: 'var(--status-concluded-border)',
       },
     },
-    // Leaderboard Ranks
+    // Leaderboard Medals (Muted Natural Metals)
     rank: {
-      gold: '#F5C542',
-      silver: '#94A3B8',
-      bronze: '#D97706',
-    },
-    // Text
-    text: {
-      primary: 'var(--fg)',
-      secondary: 'var(--muted)',
-      muted: 'var(--subtle)',
-      inverse: 'var(--accent-ink)',
-    },
-    // Borders
-    border: {
-      light: 'var(--line)',
-      medium: 'var(--border-strong)',
-      primary: 'var(--border)',
+      gold: '#C88A2B',
+      silver: '#7A8288',
+      bronze: '#9E6446',
     },
   },
   typography: {
-    fontFamily: 'var(--f-body), sans-serif',
-    display: 'var(--f-display), serif',
-    jp: 'var(--f-jp), serif',
-    mono: 'var(--f-mono), monospace',
+    fontFamily: 'var(--f-body), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    display: 'var(--f-display), "Shippori Mincho", "Noto Serif JP", serif',
+    jp: 'var(--f-jp), "Shippori Mincho", "Noto Serif JP", serif',
+    mono: 'var(--f-mono), "DM Mono", ui-monospace, Menlo, monospace',
     letterSpacing: {
-      widest: '0.28em',
-      wider: '0.14em',
+      tighter: '-0.02em',
       normal: '0',
+      wide: '0.08em',
+      wider: '0.14em',
+      widest: '0.22em',
+    },
+  },
+  borders: {
+    hairline: '1px solid var(--border)',
+    radius: {
+      none: '0px',
+      xs: '2px',
+      sm: '3px',
+      md: '4px', // Maximum corner radius as required by modern Japanese minimalism
+      lg: '4px',
+      full: '4px',
     },
   },
   shadows: {
-    glass: 'var(--shadow)',
-    glow: '0 12px 36px -10px var(--accent)',
+    none: 'none',
+    subtle: 'var(--shadow-subtle)',
+    card: 'var(--shadow-card)',
+    glass: 'none',
   },
-  borders: {
-    radius: {
-      sm: '8px',
-      md: '14px',
-      lg: '18px',
-      xl: 'var(--r)',
-      full: '9999px',
-    },
+  transitions: {
+    default: '180ms cubic-bezier(0.16, 1, 0.3, 1)',
+    slow: '300ms cubic-bezier(0.16, 1, 0.3, 1)',
   },
-  glass: {
-    backdropFilter: 'blur(20px)',
-    border: '1px solid var(--border)',
-    background: 'var(--surface)',
-  },
-};
+} as const;
+
+export type OpencodeTokens = typeof opencodeTokens;

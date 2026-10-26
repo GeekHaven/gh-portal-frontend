@@ -1,10 +1,11 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { faqData, FAQItem } from "../data/faqData";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
-import BlurText from "./BlurText";
+import DecryptedText from "components/reactbits/DecryptedText";
 
 const SafeAnimatePresence = AnimatePresence as React.FC<React.PropsWithChildren<any>>;
 
@@ -18,49 +19,58 @@ export default function FAQ() {
   return (
     <section
       id="faq"
-      className="relative py-24 bg-[#07131F] border-b border-[#AEBCC7]/15 scroll-mt-20 overflow-hidden"
+      aria-label="Frequently Asked Questions"
+      className="relative py-24 sm:py-32 bg-[var(--background)] text-[var(--foreground)] border-b border-[var(--border)] overflow-hidden"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <h2
-            className="text-3xl sm:text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#F4F1E8] via-[#D9E2E8] to-[#B8E5D5]"
-          >
-            Frequently Asked Questions
-          </h2>
+      {/* Oversized low-contrast Japanese numeral watermark */}
+      <div
+        className="absolute top-6 right-8 font-serif text-[120px] sm:text-[180px] leading-none text-[var(--foreground)] opacity-[0.03] select-none pointer-events-none font-bold"
+        aria-hidden="true"
+      >
+        六
+      </div>
 
-          <div className="mt-4">
-            <BlurText
-              text="Quick answers to common questions about participating, submitting pull requests, and climbing the leaderboard."
-              className="text-base sm:text-lg text-[#AEBCC7] max-w-2xl mx-auto leading-relaxed"
-              delay={25}
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-12 max-w-4xl">
+        {/* Section Header */}
+        <div className="text-center mb-16">
+          <span className="text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--accent)] block mb-3 font-semibold">
+            <DecryptedText
+              text="[ 06 / 六 · INQUIRIES ]"
+              speed={40}
+              maxIterations={6}
+              animateOn="hover"
             />
-          </div>
+          </span>
+          <h2 className="font-serif text-3xl sm:text-5xl text-[var(--foreground)] tracking-tight leading-tight">
+            Frequently Asked <span className="italic">Questions</span>.
+          </h2>
+          <p className="font-sans text-base sm:text-lg text-[var(--muted-foreground)] mt-3 max-w-xl mx-auto leading-relaxed">
+            Essential answers regarding eligibility, repository onboarding, evaluation criteria, and pull request guidelines.
+          </p>
         </div>
 
-        {/* Accordion List */}
-        <div className="max-w-3xl mx-auto space-y-4">
+        {/* Accordion List with Hairline Borders */}
+        <div className="border-t border-[var(--border)] divide-y divide-[var(--border)]">
           {faqData.map((faq: FAQItem) => {
             const isOpen = openId === faq.id;
             return (
-              <div
-                key={faq.id}
-                className="rounded-2xl border border-[#AEBCC7]/15 bg-[#102535] backdrop-blur-md overflow-hidden transition-all duration-300 hover:border-[#58B99A]/45 hover:shadow-[0_10px_35px_-15px_rgba(7,19,31,0.8)]"
-              >
+              <div key={faq.id} className="transition-colors duration-150">
                 <button
+                  type="button"
                   onClick={() => toggleAccordion(faq.id)}
-                  className="w-full flex items-center justify-between p-5 sm:p-6 text-left cursor-pointer focus:outline-none"
+                  aria-expanded={isOpen}
+                  className="w-full flex items-center justify-between py-6 text-left cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] group"
                 >
-                  <span className="text-base sm:text-lg font-bold text-[#F4F1E8] pr-4">
+                  <span className="font-serif text-lg sm:text-xl text-[var(--foreground)] group-hover:text-[var(--accent)] transition-colors pr-6">
                     {faq.question}
                   </span>
-                  <motion.div
-                    animate={{ rotate: isOpen ? 180 : 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="p-1 rounded-full bg-[#0B1C2A] text-[#58B99A] border border-[#AEBCC7]/15 shrink-0"
+                  <div
+                    className={`p-1.5 rounded-[2px] border border-[var(--border)] bg-[var(--surface)] text-[var(--muted-foreground)] transition-transform duration-200 shrink-0 ${
+                      isOpen ? "rotate-180 text-[var(--accent)]" : ""
+                    }`}
                   >
                     <ChevronDown className="w-4 h-4" />
-                  </motion.div>
+                  </div>
                 </button>
 
                 <SafeAnimatePresence initial={false}>
@@ -69,10 +79,10 @@ export default function FAQ() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="px-5 pb-6 sm:px-6 pt-1 text-sm sm:text-base text-[#AEBCC7] leading-relaxed border-t border-[#AEBCC7]/10">
+                      <div className="pb-6 text-sm sm:text-base text-[var(--muted-foreground)] leading-relaxed">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -83,14 +93,14 @@ export default function FAQ() {
           })}
         </div>
 
-        {/* Subtle, discoverable link to the full dedicated FAQ & guide page */}
-        <div className="mt-10 text-center">
+        {/* Link to Full Dedicated FAQ Page */}
+        <div className="mt-12 text-center">
           <Link
             href="/faq"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-[#AEBCC7] hover:text-[#F4F1E8] bg-[#102535]/60 hover:bg-[#102535] border border-[#AEBCC7]/20 hover:border-[#58B99A]/50 backdrop-blur-md transition-all duration-300 shadow-md group"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[2px] text-xs font-mono uppercase tracking-wider text-[var(--foreground)] hover:text-[var(--accent)] border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
           >
-            <span>Have more questions? View the full FAQ and guide</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#58B99A] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <span>Read Complete FAQ &amp; Contributor Handbook</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>

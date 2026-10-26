@@ -1,8 +1,8 @@
 {
-  "showWinners": false,
-  "showMilestones": false,
+  "showWinners": true,
+  "showMilestones": true,
   "showLeaderboard": true,
   "showRepositories": true,
   "showRPlace": true,
-  "flagshipEvent": "Rift CTF"
+  "flagshipEvent": "CSS Battle"
 }

@@ -29,13 +29,13 @@ import SearchProfileBanner from 'views/admin/profile/components/SearchProfileBan
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
 import { FetchedEvents } from '../../../../api/events/events';
 
-const SERIF = "Georgia, 'Times New Roman', serif";
-const CONTROL_H = '44px';
+const SERIF = "var(--f-display), 'Shippori Mincho', 'Noto Serif JP', serif";
+const CONTROL_H = '40px';
 
 const MEDALS = {
-  1: { bg: 'linear-gradient(135deg, #F5C542 0%, #EAB308 100%)', ring: 'rgba(245, 197, 66, 0.6)', ink: '#0C1C2C' },
-  2: { bg: 'linear-gradient(135deg, #E2E8F0 0%, #94A3B8 100%)', ring: 'rgba(148, 163, 184, 0.6)', ink: '#0C1C2C' },
-  3: { bg: 'linear-gradient(135deg, #FDBA74 0%, #D97706 100%)', ring: 'rgba(217, 119, 6, 0.6)', ink: '#0C1C2C' },
+  1: { bg: '#C88A2B', ring: '#C88A2B', ink: '#FFFFFF' },
+  2: { bg: '#7A8288', ring: '#7A8288', ink: '#FFFFFF' },
+  3: { bg: '#9E6446', ring: '#9E6446', ink: '#FFFFFF' },
 } as const;
 
 function safeDecode(value: string | undefined): string {
@@ -52,13 +52,13 @@ const controlStyle = {
   px: '14px',
   bg: 'var(--surface)',
   border: '1px solid var(--border)',
-  borderRadius: '12px',
+  borderRadius: '4px',
   color: 'var(--text)',
   fontSize: '13px',
-  fontWeight: '600',
-  boxShadow: 'var(--shadow)',
-  transition: 'all 0.2s ease',
-  _hover: { borderColor: 'var(--accent)', bg: 'var(--surface-2)' },
+  fontWeight: '500',
+  boxShadow: 'none',
+  transition: 'all 0.15s ease',
+  _hover: { borderColor: 'var(--fg)', bg: 'var(--surface)' },
   _focusVisible: { outline: '2px solid var(--accent)', outlineOffset: '2px' },
 } as const;
 
@@ -632,16 +632,10 @@ function SpotlightCard({
     : 'THIRD PLACE · #3';
 
   const accentColor = isFirst
-    ? '#F5C542'
+    ? '#C88A2B'
     : isSecond
-    ? '#BAD7F5'
-    : '#FDBA74';
-
-  const scoreTextShadow = isFirst
-    ? '0 0 25px rgba(245, 197, 66, 0.45)'
-    : isSecond
-    ? '0 0 20px rgba(186, 215, 245, 0.35)'
-    : '0 0 20px rgba(253, 186, 116, 0.35)';
+    ? '#7A8288'
+    : '#9E6446';
 
   const cardContent = (
     <Box
@@ -649,40 +643,25 @@ function SpotlightCard({
       position="relative"
       textAlign="center"
       overflow="hidden"
-      p={{ base: '22px 16px', md: isFirst ? '36px 24px 32px' : '26px 20px 26px' }}
+      p={{ base: '22px 16px', md: isFirst ? '32px 24px 28px' : '24px 20px 24px' }}
       order={{ base: rank, md: isFirst ? 2 : isSecond ? 1 : 3 }}
       cursor={row.githubid ? 'pointer' : 'default'}
+      borderRadius="4px"
+      border="1px solid var(--border)"
+      bg="var(--surface)"
     >
-      {/* Light spotlight cone / ambient beam from top */}
-      <Box
-        position="absolute"
-        top="0"
-        left="50%"
-        transform="translateX(-50%)"
-        w="90%"
-        h="100px"
-        bg={
-          isFirst
-            ? 'radial-gradient(ellipse at top, rgba(245, 197, 66, 0.22) 0%, transparent 70%)'
-            : isSecond
-            ? 'radial-gradient(ellipse at top, rgba(186, 215, 245, 0.16) 0%, transparent 70%)'
-            : 'radial-gradient(ellipse at top, rgba(253, 186, 116, 0.16) 0%, transparent 70%)'
-        }
-        pointerEvents="none"
-      />
-
       {/* Podium rank / crown header */}
       <Flex justify="center" align="center" gap="7px" color={accentColor} mb={isFirst ? '12px' : '10px'}>
         {isFirst ? (
-          <Box className="podium-crown-icon" display="flex" alignItems="center" gap="6px">
-            <FaCrown size={22} color="#F5C542" />
+          <Box display="flex" alignItems="center" gap="6px">
+            <FaCrown size={16} color="#C88A2B" />
             <Text
               fontSize="11px"
-              fontWeight="900"
-              letterSpacing="0.16em"
+              fontWeight="700"
+              letterSpacing="0.14em"
               textTransform="uppercase"
               fontFamily="var(--f-mono)"
-              color="#F5C542"
+              color="#C88A2B"
             >
               {rankTag}
             </Text>
@@ -690,8 +669,8 @@ function SpotlightCard({
         ) : (
           <Text
             fontSize="10.5px"
-            fontWeight="800"
-            letterSpacing="0.14em"
+            fontWeight="600"
+            letterSpacing="0.12em"
             textTransform="uppercase"
             fontFamily="var(--f-mono)"
             color={accentColor}
@@ -701,40 +680,33 @@ function SpotlightCard({
         )}
       </Flex>
 
-      {/* Avatar with dynamic glowing halo ring */}
+      {/* Avatar */}
       <Box position="relative" display="inline-block" my={isFirst ? '6px' : '4px'}>
-        <Box className={avatarHaloClass} borderRadius="full" p="4px">
-          <Avatar
-            src={row.avatarUrl as string}
-            name={row.name}
-            size={isFirst ? 'xl' : 'lg'}
-            border="3px solid"
-            borderColor={medal.ring}
-            boxShadow={
-              isFirst
-                ? '0 0 28px rgba(245, 197, 66, 0.45)'
-                : isSecond
-                ? '0 0 20px rgba(186, 215, 245, 0.35)'
-                : '0 0 20px rgba(253, 186, 116, 0.35)'
-            }
-          />
-        </Box>
+        <Avatar
+          src={row.avatarUrl as string}
+          name={row.name}
+          size={isFirst ? 'xl' : 'lg'}
+          borderRadius="4px"
+          border="1px solid"
+          borderColor={medal.ring}
+        />
         <Box
           position="absolute"
-          bottom="-5px"
+          bottom="-6px"
           left="50%"
           transform="translateX(-50%)"
-          px="12px"
-          py="2px"
-          borderRadius="full"
-          fontSize="11px"
-          fontWeight="900"
+          px="8px"
+          py="1px"
+          borderRadius="2px"
+          fontSize="10px"
+          fontWeight="700"
+          fontFamily="var(--f-mono)"
           bg={medal.bg}
           color={medal.ink}
-          boxShadow="0 4px 12px rgba(0,0,0,0.35)"
+          border="1px solid var(--border)"
           letterSpacing="0.04em"
         >
-          #{rank}
+          0{rank}
         </Box>
       </Box>
 

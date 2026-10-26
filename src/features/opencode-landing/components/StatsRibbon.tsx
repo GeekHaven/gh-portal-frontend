@@ -3,22 +3,23 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import CountUp from "./CountUp";
+import DecryptedText from "components/reactbits/DecryptedText";
 
 const stats = [
-  { label: "Active Participants", value: 1000, suffix: "+" },
-  { label: "PRs Merged", value: 3700, suffix: "+" },
-  { label: "Projects & Tracks", value: 25, suffix: "+" },
+  { id: "01", label: "Active Participants", value: 1000, suffix: "+" },
+  { id: "02", label: "PRs Merged", value: 3700, suffix: "+" },
+  { id: "03", label: "Projects & Tracks", value: 25, suffix: "+" },
 ];
 
 const ecosystemLogos = [
-  { name: "GitHub", src: "/logos_github.svg", width: 110, height: 35 },
-  { name: "DigitalOcean", src: "/logos_digital-ocean.svg", width: 140, height: 35 },
-  { name: "Solana", src: "/logos_solana.svg", width: 110, height: 35 },
-  { name: "Filecoin", src: "/logos_filecoin.svg", width: 110, height: 35 },
-  { name: "Replit", src: "/logos_replit.svg", width: 110, height: 35 },
-  { name: "Polygon Labs", src: "/logos_polygon.svg", width: 110, height: 35 },
-  { name: "Taskade", src: "/logos_taskade.svg", width: 110, height: 35 },
-  { name: "JetBrains", src: "/images/jetbrains.png", width: 110, height: 35 },
+  { name: "GitHub", src: "/logos_github.svg", width: 100, height: 28 },
+  { name: "DigitalOcean", src: "/logos_digital-ocean.svg", width: 120, height: 28 },
+  { name: "Solana", src: "/logos_solana.svg", width: 100, height: 28 },
+  { name: "Filecoin", src: "/logos_filecoin.svg", width: 100, height: 28 },
+  { name: "Replit", src: "/logos_replit.svg", width: 100, height: 28 },
+  { name: "Polygon Labs", src: "/logos_polygon.svg", width: 100, height: 28 },
+  { name: "Taskade", src: "/logos_taskade.svg", width: 100, height: 28 },
+  { name: "JetBrains", src: "/images/jetbrains.png", width: 100, height: 28 },
 ];
 
 export default function StatsRibbon() {
@@ -39,7 +40,7 @@ export default function StatsRibbon() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: "0px" }
+      { threshold: 0.15, rootMargin: "0px" }
     );
 
     observer.observe(el);
@@ -50,68 +51,94 @@ export default function StatsRibbon() {
     <section
       ref={sectionRef}
       id="stats"
-      className="relative z-20 py-14 sm:py-18 bg-[#07131F] overflow-hidden"
+      aria-label="Event statistics"
+      className="relative z-10 py-16 sm:py-24 bg-[var(--surface)] text-[var(--foreground)] border-b border-[var(--border)] overflow-hidden"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Animated Counter Cards (Translucent Floating Glass Panels) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          {stats.map((item, index) => (
+      {/* Faint dot pattern (<=6% opacity) */}
+      <div
+        className="absolute inset-0 bg-[radial-gradient(var(--border)_1px,transparent_1px)] [background-size:24px_24px] opacity-35 pointer-events-none"
+        aria-hidden="true"
+      />
+
+      {/* Oversized low-contrast Japanese numeral watermark */}
+      <div
+        className="absolute top-4 right-8 font-serif text-[120px] sm:text-[180px] leading-none text-[var(--foreground)] opacity-[0.03] select-none pointer-events-none font-bold"
+        aria-hidden="true"
+      >
+        一
+      </div>
+
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-12 max-w-6xl">
+        {/* Section kicker */}
+        <div className="flex items-center gap-2 mb-8">
+          <span className="text-[11px] font-mono uppercase tracking-[0.24em] text-[var(--accent)] font-semibold">
+            <DecryptedText
+              text="[ 01 / 一 · METRICS ]"
+              speed={40}
+              maxIterations={6}
+              animateOn="hover"
+            />
+          </span>
+          <span className="h-px w-8 bg-[var(--border)]" />
+          <span className="text-[11px] font-mono text-[var(--muted-foreground)]">実績</span>
+        </div>
+
+        {/* Architectural 3-Column Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 border border-[var(--border)] divide-y sm:divide-y-0 sm:divide-x divide-[var(--border)] bg-[var(--background)]">
+          {stats.map((item) => (
             <div
               key={item.label}
-              style={{
-                transitionDelay: `${index * 120}ms`,
-              }}
-              className={`group relative flex flex-col items-center justify-center rounded-2xl sm:rounded-3xl border border-[#AEBCC7]/15 bg-gradient-to-b from-[#102535]/50 via-[#0D2233]/40 to-[#07131F]/60 p-6 sm:p-7 text-center backdrop-blur-xl shadow-[0_16px_40px_-15px_rgba(7,19,31,0.95),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-700 ease-out hover:-translate-y-1.5 hover:border-[#58B99A]/50 hover:shadow-[0_20px_50px_-20px_rgba(88,185,154,0.22)] ${
-                isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-              }`}
+              className="p-8 sm:p-10 flex flex-col justify-between"
             >
-              {/* Luminous Top Glass Sheen Line */}
-              <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#B8E5D5]/40 to-transparent group-hover:via-[#58B99A]/80 transition-all duration-500 rounded-t-3xl" />
-              <div className="absolute inset-0 rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_50%_0%,rgba(88,185,154,0.12),transparent_70%)] pointer-events-none" />
+              <div className="flex items-center justify-between text-xs font-mono text-[var(--muted-foreground)] mb-6">
+                <span>{item.id}</span>
+                <span className="uppercase tracking-widest text-[10px]">VERIFIED METRIC</span>
+              </div>
 
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#F4F1E8] tracking-tight">
+              <div className="font-serif text-4xl sm:text-5xl lg:text-6xl text-[var(--foreground)] tracking-tight">
                 <CountUp
                   to={item.value}
-                  duration={1.8}
+                  duration={1.6}
                   separator=","
                   startWhen={isInView}
                   className="inline-block"
                 />
-                <span className="text-[#B8E5D5] ml-0.5">{item.suffix}</span>
+                <span className="text-[var(--accent)] ml-1 font-sans font-light">
+                  {item.suffix}
+                </span>
               </div>
-              <span className="mt-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em] text-[#AEBCC7]">
+
+              <div className="mt-4 pt-4 border-t border-[var(--border)] text-xs uppercase tracking-[0.16em] text-[var(--muted-foreground)] font-medium">
                 {item.label}
-              </span>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Trust Ribbon */}
-        <div
-          style={{ transitionDelay: "360ms" }}
-          className={`mt-12 max-w-6xl mx-auto rounded-2xl sm:rounded-3xl border border-[#AEBCC7]/15 bg-[#102535]/40 px-6 py-6 sm:py-7 backdrop-blur-xl shadow-lg shadow-[#07131F]/50 transition-all duration-700 ease-out ${
-            isInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          }`}
-        >
-          <div className="text-center mb-6">
-            <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#D9E2E8]">
-              <span className="h-2 w-2 rounded-full bg-[#58B99A] animate-pulse" />
+        {/* Supported by Developer Ecosystems Ribbon */}
+        <div className="mt-14 pt-10 border-t border-[var(--border)]">
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
               Supported &amp; Trusted by Developer Ecosystems
+            </span>
+            <span className="hidden sm:inline text-xs font-mono text-[var(--muted-foreground)]">
+              Global Open Source Partners
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 opacity-85">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 sm:gap-8 items-center justify-items-center">
             {ecosystemLogos.map((logo) => (
               <div
                 key={logo.name}
-                className="h-8 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-105"
+                className="h-8 flex items-center justify-center p-1"
+                title={logo.name}
               >
                 <Image
                   src={logo.src}
                   alt={logo.name}
                   width={logo.width}
                   height={logo.height}
-                  className="max-h-7 w-auto object-contain"
+                  className="max-h-5 sm:max-h-6 w-auto object-contain [filter:brightness(0)] opacity-75 dark:[filter:brightness(0)_invert(1)] dark:opacity-80 hover:opacity-100 transition-all duration-200"
                 />
               </div>
             ))}

@@ -1,218 +1,91 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
-import SakuraCanvas from "./SakuraCanvas";
-import { ArrowRight, Sparkles, Terminal } from "lucide-react";
-import SpecularButton from "./SpecularButton";
+import React from 'react';
+import Link from 'next/link';
+import SumiLandscapeBackground from './SumiLandscapeBackground';
+import SponsorsMarquee from './SponsorsMarquee';
+import TerminalWindow from './TerminalWindow';
+import Magnet from 'components/reactbits/Magnet';
+import ClickSpark from 'components/reactbits/ClickSpark';
 
 export default function HeroSection() {
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [isFrozen, setIsFrozen] = useState(false);
-
-  useEffect(() => {
-    const handleLandingEntered = () => {
-      if (heroVideoRef.current) {
-        heroVideoRef.current.currentTime = 0;
-        heroVideoRef.current.play().catch(() => {});
-        setIsFrozen(false);
-      }
-    };
-
-    window.addEventListener("landing-page-entered", handleLandingEntered);
-
-    const checkAndPlay = () => {
-      const landingElem = document.getElementById("cinematic-landing-portal");
-      if (!landingElem && heroVideoRef.current) {
-        heroVideoRef.current.play().catch(() => {});
-      }
-    };
-
-    const timer = setTimeout(checkAndPlay, 400);
-
-    return () => {
-      window.removeEventListener("landing-page-entered", handleLandingEntered);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  const handleTimeUpdate = () => {
-    const video = heroVideoRef.current;
-    if (video && video.duration) {
-      if (video.currentTime >= video.duration - 0.15) {
-        video.pause();
-        setIsFrozen(true);
-      }
-    }
-  };
-
-  const handleVideoEnded = () => {
-    if (heroVideoRef.current) {
-      heroVideoRef.current.pause();
-    }
-    setIsFrozen(true);
-  };
-
   return (
     <section
       id="hero"
-      className="relative flex min-h-[52rem] flex-col items-center justify-center overflow-hidden bg-[#07131F] pt-36 pb-20 sm:pt-44 sm:pb-24 lg:pb-28"
+      aria-label="Hero Introduction"
+      className="relative w-full pt-32 sm:pt-36 md:pt-42 lg:pt-48 pb-16 sm:pb-24 lg:pb-28 overflow-hidden text-center flex flex-col items-center justify-center border-b border-[var(--border)]"
     >
-      {/* Cinematic Japanese Hero Entry Video Background with Smooth Organic Dissolve */}
+      {/* Background: Calm, misty ink-wash landscape with paper grain, moon, and mountain parallax */}
+      <SumiLandscapeBackground />
+
+      {/* Soft Scrim behind Hero Text for WCAG AA Contrast */}
       <div
-        className="absolute inset-0 z-0 select-none overflow-hidden"
+        className="absolute inset-x-0 top-20 h-[480px] max-w-4xl mx-auto pointer-events-none z-[5]"
         style={{
-          maskImage: "linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,0.85) 75%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,0.85) 75%, transparent 100%)",
+          background: 'radial-gradient(ellipse at center, var(--background) 15%, transparent 75%)',
+          opacity: 0.88,
         }}
-      >
-        {/* Frozen Background Image (Shows the exact final scene when video finishes or as fallback) */}
-        <img
-          src="/images/hero-japanese-bg.jpg"
-          alt="Japanese Village Night Background"
-          className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-opacity duration-700 ${
-            isFrozen ? "opacity-100" : "opacity-0"
-          }`}
-        />
-
-        <video
-          ref={heroVideoRef}
-          poster="/images/hero-japanese-bg.jpg"
-          playsInline
-          muted
-          autoPlay
-          preload="auto"
-          onTimeUpdate={handleTimeUpdate}
-          onEnded={handleVideoEnded}
-          className={`w-full h-full object-cover object-center pointer-events-none transition-opacity duration-500 ${
-            isFrozen ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <source src="/videos/ending.mp4" type="video/mp4" />
-        </video>
-        {/* Subtle dark tint to ensure headline text readability */}
-        <div className="absolute inset-0 bg-black/40 pointer-events-none" />
-
-        {/* Deep, seamless multi-stop gradient transition into the section below */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-72 sm:h-96 md:h-[32rem] pointer-events-none"
-          style={{
-            background: "linear-gradient(to top, #07131F 0%, rgba(7, 19, 31, 0.95) 25%, rgba(7, 19, 31, 0.65) 55%, rgba(7, 19, 31, 0.2) 80%, transparent 100%)"
-          }}
-        />
-
-        {/* Ambient night mist layer */}
-        <div
-          className="absolute inset-x-0 bottom-0 h-48 sm:h-64 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 80% 60% at 50% 100%, rgba(143, 175, 196, 0.08), transparent 75%)"
-          }}
-        />
-      </div>
-
-      {/* Floating Cherry Blossom Petals in Hero Background - continues flowing at all times */}
-      <SakuraCanvas
-        active={true}
-        petalCount={48}
-        position="absolute"
-        className="z-10 pointer-events-none"
+        aria-hidden="true"
       />
 
-      <div className="relative z-30 mx-auto flex max-w-5xl flex-col items-center px-4 sm:px-6 text-center">
-        {/* Registration & Event Status Ribbon */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 sm:gap-2.5 rounded-full border border-[#58B99A]/30 bg-[#102535]/55 px-3 sm:px-4 py-1.5 sm:py-2 text-[10.5px] sm:text-xs font-semibold uppercase tracking-[0.1em] sm:tracking-[0.2em] text-[#D9E2E8] backdrop-blur-md shadow-lg shadow-[#07131F]/70 whitespace-nowrap max-w-full">
-            <Sparkles className="h-3.5 w-3.5 text-[#58B99A] animate-pulse shrink-0" />
-            <span className="truncate">OpenCode 2026 • GeekHaven IIITA</span>
-            <span className="hidden sm:inline text-[#718394]">•</span>
-            <span className="hidden sm:inline text-[#B8E5D5] font-bold">Registration Live</span>
-          </div>
-        </div>
-
-        {/* High-Impact Headline (Racing Sans One Font) */}
-        <h1 className="mt-6 sm:mt-8 text-3xl sm:text-5xl md:text-6xl lg:text-[4.75rem] leading-[1.14] text-[#F4F1E8] drop-shadow-[0_4px_30px_rgba(7,19,31,0.95)] max-w-full break-words">
-          <span className="font-racing uppercase tracking-[0.02em] sm:tracking-[0.04em]">
-            START YOUR{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F4F1E8] via-[#D9E2E8] to-[#B8E5D5]">
-              OPEN SOURCE ODYSSEY
-            </span>
-          </span>
-          <span className="block mt-4 sm:mt-5 font-cormorant text-sm sm:text-lg md:text-xl lg:text-2xl font-medium uppercase tracking-[0.14em] sm:tracking-[0.18em] text-[#D9E2E8] drop-shadow-[0_2px_16px_rgba(7,19,31,0.9)]">
-            FUELING THE NEXT WAVE OF OPEN TECH
-          </span>
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        
+        {/* 3. CENTER OF HERO: Headline */}
+        <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] tracking-[-0.03em] leading-[1.04] text-[var(--foreground)] max-w-4xl mx-auto">
+          OpenCode 2026
         </h1>
 
-        {/* Subtext */}
-        <p className="font-zen mt-6 text-base sm:text-lg md:text-xl text-[#AEBCC7] max-w-3xl mx-auto leading-relaxed drop-shadow-[0_2px_14px_rgba(7,19,31,0.9)]">
-          A month-long open source celebration by{" "}
-          <span className="font-semibold text-[#F4F1E8]">GeekHaven, IIITA</span> bringing together{" "}
-          <span className="font-semibold text-[#B8E5D5]">1,000+ student developers</span> and
-          seasoned open-source maintainers from across the globe.
+        {/* Existing Tagline - tight leading, generous negative space */}
+        <p className="font-sans text-base sm:text-lg md:text-xl text-[var(--muted-foreground)] max-w-2xl mx-auto mt-5 sm:mt-6 leading-relaxed">
+          A month-long open source celebration by{' '}
+          <strong className="font-semibold text-[var(--foreground)]">GeekHaven, IIITA</strong>{' '}
+          bringing together{' '}
+          <strong className="font-semibold text-[var(--foreground)]">1,000+ student developers</strong>{' '}
+          and seasoned open-source maintainers from across the globe.
         </p>
 
-        {/* Brand Tagline */}
-        <div className="mt-6">
-          <h3 className="font-cormorant text-xs sm:text-sm md:text-base font-medium uppercase tracking-[0.22em] sm:tracking-[0.26em] text-[#8FAFC4] drop-shadow-[0_2px_12px_rgba(7,19,31,0.9)] select-none">
-            OPEN SOURCE <span className="text-[#58B99A] mx-1.5">•</span> OPEN MINDS
-          </h3>
-        </div>
+        {/* Two Buttons Centered with Tactile Magnet Pull & Click Sparks */}
+        <ClickSpark
+          sparkColor="var(--accent)"
+          sparkCount={6}
+          sparkRadius={24}
+          duration={380}
+          className="mt-8 sm:mt-10 w-full sm:w-auto"
+        >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
+            {/* Button 1: "Explore" (Secondary: transparent with 1px sumi border) */}
+            <Magnet padding={25} magnetStrength={3}>
+              <a
+                href="#projects"
+                className="w-full sm:w-auto h-11 px-7 rounded-[3px] border border-[var(--foreground)] bg-transparent hover:bg-[var(--foreground)]/5 text-[var(--foreground)] text-xs font-mono uppercase tracking-widest font-semibold flex items-center justify-center transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                Explore
+              </a>
+            </Magnet>
 
-        {/* Action CTAs */}
-        <div className="mt-14 sm:mt-18 md:mt-20 flex flex-col items-center justify-center gap-4 sm:gap-5 w-full">
-          {/* Contributor & Explore Projects */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
-            {/* Primary CTA: Contributor */}
-            <SpecularButton
-              size="lg"
-              radius={24}
-              tint="#B8E5D5"
-              tintOpacity={0.16}
-              textColor="#0C1C2C"
-              lineColor="#ffffff"
-              baseColor="#B8E5D5"
-              intensity={1}
-              idleIntensity={0.35}
-              shineSize={10}
-              shineFade={34}
-              thickness={1.2}
-              glow={1}
-              followMouse
-              proximity={250}
-              href="/auth/register"
-              className="!bg-[#B8E5D5] hover:!bg-[#A3DAC7] !text-[#0C1C2C] font-semibold text-sm sm:text-base shadow-lg shadow-[#58B99A]/20"
-            >
-              <Terminal className="w-4 h-4 text-[#0C1C2C]" />
-              <span>Join as Contributor</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#0C1C2C]" />
-            </SpecularButton>
-
-            {/* Secondary CTA: Explore Projects */}
-            <SpecularButton
-              size="lg"
-              radius={24}
-              tint="#ffffff"
-              tintOpacity={0.06}
-              textColor="#F4F1E8"
-              lineColor="#58B99A"
-              baseColor="#102535"
-              intensity={1}
-              idleIntensity={0.35}
-              shineSize={10}
-              shineFade={34}
-              thickness={1.2}
-              glow={1}
-              followMouse
-              proximity={250}
-              href="#projects"
-              className="!bg-[#102535]/80 hover:!bg-[#102535] !text-[#F4F1E8] font-semibold text-sm sm:text-base border border-[#58B99A]/50 backdrop-blur-md"
-            >
-              <span>Explore Projects</span>
-            </SpecularButton>
+            {/* Button 2: "Start Contributing" (Primary: solid accent Vermilion, accent-foreground text) */}
+            <Magnet padding={30} magnetStrength={3}>
+              <Link
+                href="/auth/register"
+                className="w-full sm:w-auto h-11 px-7 rounded-[3px] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--accent-foreground)] text-xs font-mono uppercase tracking-widest font-semibold flex items-center justify-center transition-colors duration-200 shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2"
+              >
+                Start Contributing
+              </Link>
+            </Magnet>
           </div>
-        </div>
-      </div>
+        </ClickSpark>
 
+        {/* 4. BELOW THE BUTTONS: Sponsors Strip (Marquee, center ~1/3 width, left-to-right) */}
+        <div className="w-full mt-10 sm:mt-12">
+          <SponsorsMarquee />
+        </div>
+
+        {/* 5. BOTTOM OF HERO: macOS-style Monospace Terminal Window */}
+        <div className="w-full mt-6 sm:mt-8">
+          <TerminalWindow />
+        </div>
+
+      </div>
     </section>
   );
 }

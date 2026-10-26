@@ -19,14 +19,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFeatures } from 'contexts/FeaturesContext';
 import { isAdminUser } from 'utils/jwt';
-import BlurText from '../../../components/reactbits/BlurText';
-import ShinyText from '../../../components/reactbits/ShinyText';
-import ClickSpark from '../../../components/reactbits/ClickSpark';
 import CountUp from '../../../components/reactbits/CountUp';
-import {
-  FaCodeBranch,
-  FaUsers,
-} from 'react-icons/fa';
+import { FaCodeBranch, FaUsers } from 'react-icons/fa';
 import { FetchedLeaderboard } from 'api/leaderboard/leaderboard';
 import { FetchedEvents } from 'api/events/events';
 
@@ -40,28 +34,13 @@ export type Winner = {
   color?: string;
 };
 
-const OVERALL_COLORS = [
-  '#F5C542', // Gold
-  '#b4aea2', // Silver
-  '#e690a2', // Bronze / Sakura Rose
-  '#8a32cd', // Amethyst
-  '#45c07f', // Jade Emerald
-];
-
-const COLLEGE_COLORS = [
-  '#45c07f', // Emerald
-  '#F5C542', // Gold
-  '#e690a2', // Sakura Rose
-  '#b4aea2', // Silver
-  '#8a32cd', // Amethyst
-];
-
-const RANK_COLORS = [
-  '#F5C542',
-  '#b4aea2',
-  '#e690a2',
-  '#8a32cd',
-  '#45c07f',
+// Muted natural metal tones
+const RANK_METALS = [
+  '#C88A2B', // Natural Gold
+  '#7A8288', // Natural Silver
+  '#9E6446', // Natural Bronze
+  '#5C646A', // Iron
+  '#4E5459', // Dark Slate
 ];
 
 function isIIITA(collegeName?: string): boolean {
@@ -77,19 +56,18 @@ function isIIITA(collegeName?: string): boolean {
 }
 
 function TopThreeCards({ winners, isLoading }: { winners: Winner[]; isLoading?: boolean }) {
-  const text = opencodeTokens.colors.text.primary;
-  const muted = opencodeTokens.colors.text.secondary;
-  const medals = ['🥇', '🥈', '🥉'];
+  const text = 'var(--fg)';
+  const muted = 'var(--muted)';
 
   if (isLoading) {
     return (
-      <Flex justify="center" gap={{ base: '16px', md: '28px' }} wrap="wrap" mt="28px">
+      <Flex justify="center" gap={{ base: '16px', md: '24px' }} wrap="wrap" mt="24px">
         {[0, 1, 2].map((i) => (
           <Box
             key={i}
-            borderRadius="22px"
-            px={{ base: '18px', sm: '26px' }}
-            py={{ base: '18px', sm: '22px' }}
+            borderRadius="4px"
+            px="24px"
+            py="20px"
             w={{ base: '100%', sm: 'auto' }}
             minW={{ base: '100%', sm: '260px' }}
             maxW={{ base: '100%', sm: '320px' }}
@@ -97,15 +75,15 @@ function TopThreeCards({ winners, isLoading }: { winners: Winner[]; isLoading?: 
             border="1px solid var(--border)"
           >
             <Flex align="center" gap="14px" mb="14px">
-              <Skeleton boxSize="48px" borderRadius="full" />
+              <Skeleton boxSize="44px" borderRadius="4px" />
               <Box flex="1">
                 <Skeleton h="16px" w="70%" mb="6px" />
                 <Skeleton h="12px" w="40%" />
               </Box>
             </Flex>
             <Flex justify="space-between" mt="10px">
-              <Skeleton h="36px" w="70px" />
-              <Skeleton h="36px" w="70px" />
+              <Skeleton h="32px" w="70px" />
+              <Skeleton h="32px" w="70px" />
             </Flex>
           </Box>
         ))}
@@ -118,74 +96,79 @@ function TopThreeCards({ winners, isLoading }: { winners: Winner[]; isLoading?: 
   }
 
   return (
-    <Flex justify="center" gap={{ base: '16px', md: '28px' }} wrap="wrap" mt="28px">
+    <Flex justify="center" gap={{ base: '16px', md: '24px' }} wrap="wrap" mt="24px">
       {winners.slice(0, 3).map((w, i) => (
         <Box
           key={w.githubid}
-          borderRadius="22px"
-          px={{ base: '18px', sm: '26px' }}
-          py={{ base: '18px', sm: '22px' }}
+          borderRadius="4px"
+          px="24px"
+          py="20px"
           w={{ base: '100%', sm: 'auto' }}
           minW={{ base: '100%', sm: '260px' }}
           maxW={{ base: '100%', sm: '320px' }}
           flex={{ base: '1 1 100%', sm: '1 1 260px' }}
           bg="var(--surface)"
-          backdropFilter="blur(24px)"
-          boxShadow={`0 10px 30px ${w.color || RANK_COLORS[w.position - 1] || '#F5C542'}33`}
-          border={`1px solid ${w.color || RANK_COLORS[w.position - 1] || '#F5C542'}66`}
+          border="1px solid var(--border)"
           position="relative"
-          transition="all 0.3s ease"
+          transition="border-color 0.2s ease"
           _hover={{
-            transform: 'translateY(-3px)',
-            boxShadow: `0 14px 40px ${w.color || RANK_COLORS[w.position - 1] || '#F5C542'}55`,
+            borderColor: 'var(--fg)',
           }}
         >
-          {/* ===== MEDAL ICON ===== */}
+          {/* Typographic Rank Label */}
           <Flex
             position="absolute"
-            top="-20px"
-            right="18px"
-            gap="6px"
-            fontSize="32px"
+            top="14px"
+            right="14px"
+            fontFamily="var(--f-mono)"
+            fontSize="11px"
+            fontWeight="700"
+            color={RANK_METALS[i] || 'var(--muted)'}
+            px="6px"
+            py="2px"
+            border="1px solid"
+            borderColor="var(--border)"
+            borderRadius="2px"
+            bg="var(--bg)"
           >
-            <span>{medals[i] || '🎖️'}</span>
+            0{w.position}
           </Flex>
 
-          {/* ===== USER INFO ===== */}
-          <Flex align="center" gap="14px" mb="14px">
+          {/* User Info */}
+          <Flex align="center" gap="12px" mb="16px">
             <Avatar
               src={w.avatarUrl || `https://github.com/${w.githubid}.png`}
               name={w.name}
               size="md"
-              border={`3px solid ${w.color || RANK_COLORS[w.position - 1] || '#F5C542'}`}
-              boxShadow={`0 0 16px ${w.color || RANK_COLORS[w.position - 1] || '#F5C542'}44`}
+              borderRadius="4px"
+              border="1px solid var(--border)"
             />
-            <Box minW={0}>
-              <Text fontWeight="800" color={text} fontSize="15px" noOfLines={1} title={w.name}>
+            <Box minW={0} pr="40px">
+              <Text fontWeight="600" color={text} fontSize="14px" noOfLines={1} title={w.name}>
                 {w.name}
               </Text>
-              <Text fontSize="12px" color={muted} noOfLines={1}>
+              <Text fontSize="12px" color={muted} fontFamily="var(--f-mono)" noOfLines={1}>
                 @{w.githubid}
               </Text>
             </Box>
           </Flex>
 
-          {/* ===== STATS ===== */}
-          <Flex justify="space-between" mt="10px">
+          {/* Metrics */}
+          <Flex justify="space-between" pt="12px" borderTop="1px solid var(--border-light)">
             <Box>
-              <Text fontSize="11px" color={muted} fontWeight="700">
+              <Text fontSize="10px" color={muted} fontWeight="600" letterSpacing="0.1em">
                 POINTS
               </Text>
-              <Text fontSize="22px" fontWeight="900" color={text} fontFamily="var(--f-mono)">
+              <Text fontSize="18px" fontWeight="700" color={text} fontFamily="var(--f-mono)">
                 <CountUp to={w.points} separator="," duration={1.2} />
               </Text>
             </Box>
 
             <Box textAlign="right">
-              <Text fontSize="11px" color={muted} fontWeight="700">
+              <Text fontSize="10px" color={muted} fontWeight="600" letterSpacing="0.1em">
                 PRs MERGED
               </Text>
-              <Text fontSize="22px" fontWeight="900" color={text} fontFamily="var(--f-mono)">
+              <Text fontSize="18px" fontWeight="700" color={text} fontFamily="var(--f-mono)">
                 <CountUp to={w.prmerged} separator="," duration={1} />
               </Text>
             </Box>
@@ -197,98 +180,64 @@ function TopThreeCards({ winners, isLoading }: { winners: Winner[]; isLoading?: 
 }
 
 function OverallSideStats({ stats }: { stats: { totalPRs: string; totalRegistrations: string } }) {
-  const glass = 'var(--surface)';
-  const text = opencodeTokens.colors.text.primary;
-  const muted = opencodeTokens.colors.text.secondary;
-
-  const Circle = ({
-    icon: Icon,
-    title,
-    statsList,
-    side,
-  }: {
-    icon: any;
-    title: string;
-    statsList: { value: string; label: string }[];
-    side: 'left' | 'right';
-  }) => (
-    <Box
-      position="absolute"
-      top="50%"
-      transform="translateY(-50%)"
-      {...(side === 'left' ? { left: '20px' } : { right: '20px' })}
-      display={{ base: 'none', lg: 'flex' }}
-      w="200px"
-      h="200px"
-      borderRadius="50%"
-      bg={glass}
-      backdropFilter="blur(20px)"
-      border="1px solid var(--border)"
-      boxShadow="var(--shadow)"
-      flexDir="column"
-      alignItems="center"
-      justifyContent="center"
-      gap="8px"
-      textAlign="center"
-      zIndex={1}
-      transition="all 0.3s ease"
-      _hover={{
-        borderColor: 'var(--accent)',
-        boxShadow: '0 20px 45px var(--accent-soft)',
-      }}
-    >
-      <Box
-        fontSize="28px"
-        color="#F5C542"
-        mb="4px"
-        filter="drop-shadow(0 0 12px rgba(245,197,66,0.35))"
-      >
-        <Icon />
-      </Box>
-
-      <Text
-        fontSize="11px"
-        letterSpacing="0.14em"
-        textTransform="uppercase"
-        fontWeight="700"
-        color={muted}
-      >
-        {title}
-      </Text>
-
-      {statsList.map((s) => (
-        <Box key={s.label}>
-          <Text fontSize="22px" fontWeight="900" color={text} fontFamily="var(--f-mono)">
-            {s.value}
-          </Text>
-          <Text fontSize="11px" color={muted}>
-            {s.label}
-          </Text>
-        </Box>
-      ))}
-    </Box>
-  );
+  const text = 'var(--fg)';
+  const muted = 'var(--muted)';
 
   return (
-    <>
-      <Circle
-        icon={FaCodeBranch}
-        title="Contributions"
-        side="left"
-        statsList={[
-          { value: stats.totalPRs, label: 'Pull Requests Merged' },
-        ]}
-      />
+    <Flex
+      direction={{ base: 'column', sm: 'row' }}
+      justify="center"
+      gap="16px"
+      my="24px"
+      maxW="640px"
+      mx="auto"
+    >
+      <Box
+        flex="1"
+        p="16px 20px"
+        borderRadius="4px"
+        bg="var(--surface)"
+        border="1px solid var(--border)"
+        display="flex"
+        alignItems="center"
+        gap="14px"
+      >
+        <Box color="var(--accent)" fontSize="20px">
+          <FaCodeBranch />
+        </Box>
+        <Box>
+          <Text fontSize="18px" fontWeight="700" color={text} fontFamily="var(--f-mono)">
+            {stats.totalPRs}
+          </Text>
+          <Text fontSize="11px" color={muted} textTransform="uppercase" letterSpacing="0.08em">
+            Pull Requests Merged
+          </Text>
+        </Box>
+      </Box>
 
-      <Circle
-        icon={FaUsers}
-        title="Community"
-        side="right"
-        statsList={[
-          { value: stats.totalRegistrations, label: 'Total Participants' },
-        ]}
-      />
-    </>
+      <Box
+        flex="1"
+        p="16px 20px"
+        borderRadius="4px"
+        bg="var(--surface)"
+        border="1px solid var(--border)"
+        display="flex"
+        alignItems="center"
+        gap="14px"
+      >
+        <Box color="var(--accent)" fontSize="20px">
+          <FaUsers />
+        </Box>
+        <Box>
+          <Text fontSize="18px" fontWeight="700" color={text} fontFamily="var(--f-mono)">
+            {stats.totalRegistrations}
+          </Text>
+          <Text fontSize="11px" color={muted} textTransform="uppercase" letterSpacing="0.08em">
+            Verified Participants
+          </Text>
+        </Box>
+      </Box>
+    </Flex>
   );
 }
 
@@ -299,15 +248,14 @@ function Podium({
   winners: Winner[];
   isLoading?: boolean;
 }) {
-  const text = opencodeTokens.colors.text.primary;
-  const muted = opencodeTokens.colors.text.secondary;
-  const glass = 'var(--card-bg)';
+  const text = 'var(--fg)';
+  const muted = 'var(--muted)';
 
   if (isLoading) {
     return (
-      <Flex justify="center" align="flex-end" gap={{ base: '8px', sm: '14px', md: '18px' }} h="280px" mt="32px">
-        {[140, 210, 160].map((h, i) => (
-          <Skeleton key={i} w={{ base: '65px', sm: '90px', md: '110px' }} h={`${h}px`} borderRadius="16px 16px 0 0" />
+      <Flex justify="center" align="flex-end" gap={{ base: '8px', sm: '14px', md: '18px' }} h="240px" mt="24px">
+        {[120, 180, 140].map((h, i) => (
+          <Skeleton key={i} w={{ base: '70px', sm: '100px', md: '120px' }} h={`${h}px`} borderRadius="4px 4px 0 0" />
         ))}
       </Flex>
     );
@@ -315,11 +263,11 @@ function Podium({
 
   if (winners.length === 0) {
     return (
-      <Box textAlign="center" py="50px">
-        <Text fontSize="16px" fontWeight="700" color="var(--fg)">
+      <Box textAlign="center" py="40px" borderRadius="4px" border="1px solid var(--border)" bg="var(--surface)">
+        <Text fontSize="14px" fontWeight="600" color="var(--fg)">
           No winners recorded yet for this category.
         </Text>
-        <Text fontSize="13px" color="var(--muted)" mt="4px">
+        <Text fontSize="12px" color="var(--muted)" mt="4px">
           Leaderboard entries will appear here once contributions are scored.
         </Text>
       </Box>
@@ -335,136 +283,81 @@ function Podium({
 
   const heights =
     winners.length >= 5
-      ? ['120px', '170px', '230px', '160px', '130px']
+      ? ['100px', '150px', '200px', '140px', '110px']
       : winners.length >= 3
-      ? ['160px', '210px', '140px']
-      : ['210px', '160px'];
+      ? ['140px', '190px', '120px']
+      : ['190px', '140px'];
 
   return (
-    <Box
-      width="100vw"
-      position="relative"
-      left="50%"
-      marginLeft="-50vw"
-      overflow="hidden"
-    >
-      <Box display="flex" justifyContent="center" px={{ base: '8px', sm: '16px' }} maxW="100vw" overflowX="auto">
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            base: `repeat(${order.length}, minmax(60px, 80px))`,
-            sm: `repeat(${order.length}, 100px)`,
-            md: `repeat(${order.length}, 120px)`,
-          }}
-          justifyContent="center"
-          alignItems="end"
-          columnGap={{ base: '8px', sm: '14px', md: '18px' }}
-          mt="32px"
-        >
-          {order.map((w, i) => (
-            <Box key={w.githubid} textAlign="center" minW={0}>
+    <Box maxW="100%" overflowX="auto" py="16px">
+      <Flex justify="center" align="flex-end" gap={{ base: '8px', sm: '12px', md: '16px' }} minW="fit-content" mx="auto">
+        {order.map((w, i) => {
+          const rankColor = RANK_METALS[w.position - 1] || 'var(--border)';
+          return (
+            <Box key={w.githubid} textAlign="center" w={{ base: '68px', sm: '92px', md: '110px' }}>
               <Avatar
                 src={w.avatarUrl || `https://github.com/${w.githubid}.png`}
                 name={w.name}
-                size={w.position === 1 ? { base: 'md', md: 'xl' } : { base: 'sm', md: 'lg' }}
-                border={`4px solid ${w.color || '#F5C542'}`}
-                boxShadow={`0 0 20px ${w.color || '#F5C542'}55`}
-                mb="8px"
+                size={w.position === 1 ? 'md' : 'sm'}
+                borderRadius="4px"
+                border={`1px solid ${rankColor}`}
+                mb="6px"
               />
 
-              <Text fontWeight="800" color={text} fontSize={{ base: '11px', sm: '13px', md: '14px' }} noOfLines={1} title={w.name}>
+              <Text fontWeight="600" color={text} fontSize={{ base: '11px', md: '12px' }} noOfLines={1} title={w.name}>
                 {w.name}
               </Text>
-              <Text fontSize={{ base: '10px', sm: '11px', md: '12px' }} color={muted} mb="8px" noOfLines={1}>
+              <Text fontSize="10px" color={muted} fontFamily="var(--f-mono)" mb="6px" noOfLines={1}>
                 @{w.githubid}
               </Text>
 
               <Box
-                h={heights[i] || '160px'}
-                w={{ base: '65px', sm: '90px', md: '110px' }}
-                mx="auto"
-                bg={w.color || '#F5C542'}
-                borderRadius="16px 16px 0 0"
-                boxShadow={`0 10px 30px ${w.color || '#F5C542'}44`}
+                h={heights[i] || '140px'}
+                w="100%"
+                bg="var(--surface)"
+                border="1px solid var(--border)"
+                borderBottom="none"
+                borderRadius="4px 4px 0 0"
                 position="relative"
-                overflow="hidden"
-                role="group"
+                display="flex"
+                flexDirection="column"
+                justifyContent="space-between"
+                p="8px 4px"
               >
-                <Flex
-                  h="100%"
-                  align="center"
-                  justify="center"
-                  fontSize={{ base: '18px', md: '24px' }}
-                  fontWeight="900"
-                  color="white"
-                  transition="opacity 0.2s ease"
-                  _groupHover={{ opacity: 0.15 }}
-                >
-                  #{w.position}
-                </Flex>
+                <Text fontSize="11px" fontWeight="700" color={rankColor} fontFamily="var(--f-mono)">
+                  0{w.position}
+                </Text>
 
-                <Flex
-                  position="absolute"
-                  inset={0}
-                  direction="column"
-                  align="center"
-                  justify="center"
-                  bg={glass}
-                  backdropFilter="blur(12px)"
-                  opacity={0}
-                  transition="opacity 0.25s ease"
-                  _groupHover={{ opacity: 1 }}
-                  p={{ base: '4px', md: '8px' }}
-                >
-                  <Text fontSize={{ base: '9px', md: '11px' }} color={muted} fontWeight="700">
-                    POINTS
-                  </Text>
-                  <Text fontSize={{ base: '12px', md: '18px' }} fontWeight="900" color={text} fontFamily="var(--f-mono)">
+                <Box>
+                  <Text fontSize="11px" fontWeight="700" color={text} fontFamily="var(--f-mono)">
                     {w.points.toLocaleString()}
                   </Text>
-
-                  <Box h={{ base: '2px', md: '6px' }} />
-
-                  <Text fontSize={{ base: '9px', md: '11px' }} color={muted} fontWeight="700">
-                    PRs
+                  <Text fontSize="9px" color={muted}>
+                    pts
                   </Text>
-                  <Text fontSize={{ base: '12px', md: '18px' }} fontWeight="900" color={text} fontFamily="var(--f-mono)">
-                    {w.prmerged.toLocaleString()}
-                  </Text>
-                </Flex>
+                </Box>
               </Box>
             </Box>
-          ))}
-        </Box>
-      </Box>
+          );
+        })}
+      </Flex>
     </Box>
   );
 }
 
 function WinnersHeader() {
   return (
-    <header className="oc-page-heading" style={{ justifyContent: 'center', textAlign: 'center', marginBottom: '12px', maxWidth: '100%', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: '100%', width: '100%' }}>
-        <p className="oc-eyebrow" style={{ justifyContent: 'center', margin: '0 0 12px', maxWidth: '100%' }}>
-          <span />
-          <ShinyText text="HALL OF FAME" speed={5} shineColor="#ffded2" />
-          <span />
-        </p>
-        <h1 style={{ textAlign: 'center', margin: '0 0 10px', color: 'var(--fg)', textShadow: '0 2px 20px rgba(0, 0, 0, 0.2)', maxWidth: '100%', wordBreak: 'break-word', overflowWrap: 'break-word' }}>
-          <BlurText text="Legacy of Legends" delay={50} animateBy="words" direction="top" />
-        </h1>
-        <p className="oc-description" style={{ textAlign: 'center', maxWidth: '540px', margin: 0 }}>
-          Top Performers and their Journey through Opencode
-        </p>
-        <Box
-          h="2px"
-          w="80px"
-          bg="var(--accent)"
-          borderRadius="full"
-          mt="16px"
-          opacity={0.8}
-        />
+    <header className="text-center mb-6">
+      <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-[var(--oc-accent)] mb-2">
+        <span>[ 01 / RECOGNITION ]</span>
+        <span>HALL OF FAME</span>
       </div>
+      <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[var(--oc-text-primary)] tracking-tight">
+        Legacy of Legends
+      </h1>
+      <p className="text-xs sm:text-sm text-[var(--oc-text-secondary)] mt-2 max-w-md mx-auto">
+        Top performers and verified contributors across OpenCode 2026.
+      </p>
     </header>
   );
 }
@@ -515,7 +408,7 @@ export default function WinnersPodiumComparisonPage() {
       points: Number(entry.points) || 0,
       prmerged: Number(entry.prmerged) || 0,
       avatarUrl: entry.avatarUrl,
-      color: OVERALL_COLORS[idx] || RANK_COLORS[idx] || '#F5C542',
+      color: RANK_METALS[idx] || '#7A8288',
     }));
   }, [leaderboardData]);
 
@@ -530,7 +423,7 @@ export default function WinnersPodiumComparisonPage() {
       points: Number(entry.points) || 0,
       prmerged: Number(entry.prmerged) || 0,
       avatarUrl: entry.avatarUrl,
-      color: COLLEGE_COLORS[idx] || RANK_COLORS[idx] || '#45c07f',
+      color: RANK_METALS[idx] || '#7A8288',
     }));
   }, [leaderboardData]);
 
@@ -553,96 +446,92 @@ export default function WinnersPodiumComparisonPage() {
   const activeWinners = tab === 0 ? overallWinners : collegeWinners;
 
   return (
-    <ClickSpark sparkColor="rgba(245, 197, 66, 0.75)" sparkSize={6} sparkRadius={26} sparkCount={7}>
-      <Box minH="100vh" position="relative" overflow="hidden" pb="60px">
-        <Box position="relative" zIndex={1} maxW="1400px" mx="auto" px={{ base: '16px', md: '24px' }}>
-          <Stack spacing="36px">
-            <WinnersHeader />
+    <Box minH="100vh" position="relative" pb="60px">
+      <Box position="relative" zIndex={1} maxW="1100px" mx="auto" px={{ base: '16px', md: '24px' }}>
+        <Stack spacing="28px">
+          <WinnersHeader />
 
-            <TopThreeCards
-              winners={activeWinners}
-              isLoading={isLeaderboardLoading}
-            />
+          <TopThreeCards
+            winners={activeWinners}
+            isLoading={isLeaderboardLoading}
+          />
 
-            <Tabs index={tab} onChange={setTab} variant="unstyled">
-              <TabList justifyContent="center" gap={{ base: '8px', sm: '14px' }}>
-                <Tab
-                  borderRadius="full"
-                  px={{ base: '18px', md: '26px' }}
-                  py={{ base: '8px', md: '10px' }}
-                  fontWeight="700"
-                  fontSize={{ base: '12px', md: '14px' }}
-                  color="var(--muted)"
-                  border="1px solid var(--border)"
-                  bg="var(--card-soft)"
-                  backdropFilter="blur(16px)"
-                  transition="all 0.3s ease"
-                  _selected={{
-                    bg: 'var(--accent)',
-                    color: 'var(--accent-ink)',
-                    borderColor: 'var(--accent)',
-                    boxShadow: '0 0 20px var(--accent-soft)',
-                    transform: 'scale(1.03)',
-                  }}
-                  _hover={{
-                    borderColor: 'var(--accent)',
-                    bg: 'var(--accent-soft)',
-                  }}
-                >
-                  Overall Podium
-                </Tab>
-                <Tab
-                  borderRadius="full"
-                  px={{ base: '18px', md: '26px' }}
-                  py={{ base: '8px', md: '10px' }}
-                  fontWeight="700"
-                  fontSize={{ base: '12px', md: '14px' }}
-                  color="var(--muted)"
-                  border="1px solid var(--border)"
-                  bg="var(--card-soft)"
-                  backdropFilter="blur(16px)"
-                  transition="all 0.3s ease"
-                  _selected={{
-                    bg: 'var(--accent)',
-                    color: 'var(--accent-ink)',
-                    borderColor: 'var(--accent)',
-                    boxShadow: '0 0 20px var(--accent-soft)',
-                    transform: 'scale(1.03)',
-                  }}
-                  _hover={{
-                    borderColor: 'var(--accent)',
-                    bg: 'var(--accent-soft)',
-                  }}
-                >
-                  IIIT A Podium
-                </Tab>
-              </TabList>
+          <Tabs index={tab} onChange={setTab} variant="unstyled">
+            <TabList justifyContent="center" gap="8px">
+              <Tab
+                borderRadius="4px"
+                px="18px"
+                py="6px"
+                fontWeight="500"
+                fontSize="12px"
+                fontFamily="var(--f-mono)"
+                textTransform="uppercase"
+                letterSpacing="0.08em"
+                color="var(--muted)"
+                border="1px solid var(--border)"
+                bg="var(--surface)"
+                transition="all 0.15s ease"
+                _selected={{
+                  bg: 'var(--accent)',
+                  color: 'white',
+                  borderColor: 'var(--accent)',
+                }}
+                _hover={{
+                  borderColor: 'var(--fg)',
+                }}
+              >
+                Overall Podium
+              </Tab>
+              <Tab
+                borderRadius="4px"
+                px="18px"
+                py="6px"
+                fontWeight="500"
+                fontSize="12px"
+                fontFamily="var(--f-mono)"
+                textTransform="uppercase"
+                letterSpacing="0.08em"
+                color="var(--muted)"
+                border="1px solid var(--border)"
+                bg="var(--surface)"
+                transition="all 0.15s ease"
+                _selected={{
+                  bg: 'var(--accent)',
+                  color: 'white',
+                  borderColor: 'var(--accent)',
+                }}
+                _hover={{
+                  borderColor: 'var(--fg)',
+                }}
+              >
+                IIIT A Podium
+              </Tab>
+            </TabList>
 
-              <TabPanels mt="8px">
-                <TabPanel p="0">
-                  <Box position="relative">
-                    <OverallSideStats stats={stats} />
-                    <Podium
-                      winners={overallWinners}
-                      isLoading={isLeaderboardLoading}
-                    />
-                  </Box>
-                </TabPanel>
+            <TabPanels mt="8px">
+              <TabPanel p="0">
+                <Box position="relative">
+                  <OverallSideStats stats={stats} />
+                  <Podium
+                    winners={overallWinners}
+                    isLoading={isLeaderboardLoading}
+                  />
+                </Box>
+              </TabPanel>
 
-                <TabPanel p="0">
-                  <Box position="relative">
-                    <OverallSideStats stats={stats} />
-                    <Podium
-                      winners={collegeWinners}
-                      isLoading={isLeaderboardLoading}
-                    />
-                  </Box>
-                </TabPanel>
-              </TabPanels>
-            </Tabs>
-          </Stack>
-        </Box>
+              <TabPanel p="0">
+                <Box position="relative">
+                  <OverallSideStats stats={stats} />
+                  <Podium
+                    winners={collegeWinners}
+                    isLoading={isLeaderboardLoading}
+                  />
+                </Box>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Stack>
       </Box>
-    </ClickSpark>
+    </Box>
   );
 }

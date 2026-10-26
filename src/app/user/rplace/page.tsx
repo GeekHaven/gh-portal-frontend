@@ -22,16 +22,16 @@ import Canvas from '../../../components/Canvas/Canvas';
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // ─── Theme constants ───
-const SERIF = "Georgia, 'Times New Roman', serif";
-const LIVE_GREEN = '#7fcf9f';
+const SERIF = "var(--f-display), 'Shippori Mincho', 'Noto Serif JP', serif";
+const LIVE_GREEN = 'var(--status-live-text, #6B7F5A)';
 
 const statTile = {
   p: { base: '14px 16px', md: '18px 20px' },
-  borderRadius: '14px',
-  bg: 'var(--card-soft)',
+  borderRadius: '4px',
+  bg: 'var(--surface)',
   border: '1px solid var(--border)',
-  transition: 'all 0.2s ease',
-  _hover: { borderColor: 'var(--border-strong)', transform: 'translateY(-2px)' },
+  transition: 'border-color 0.15s ease',
+  _hover: { borderColor: 'var(--fg)' },
 } as const;
 
 const tileLabel = {
@@ -183,8 +183,8 @@ export default function RPlaceCanvasPage() {
           <Box {...statTile}>
             <Flex justify="space-between" align="center" mb="8px">
               <Text {...tileLabel}>Leaderboard Points</Text>
-              <Box p="6px" borderRadius="10px" bg="var(--accent-soft)" color="var(--accent)">
-                <Flame size={17} />
+              <Box p="6px" borderRadius="4px" border="1px solid var(--border)" bg="var(--bg)" color="var(--accent)">
+                <Flame size={15} />
               </Box>
             </Flex>
             <Text fontFamily={SERIF} fontSize="34px" color="var(--text)" letterSpacing="-0.02em" lineHeight="1.2">
@@ -199,13 +199,13 @@ export default function RPlaceCanvasPage() {
           <Box {...statTile}>
             <Flex justify="space-between" align="center" mb="8px">
               <Text {...tileLabel}>Pixels Available</Text>
-              <Box p="6px" borderRadius="10px" bg="rgba(127, 207, 159, 0.14)" color={LIVE_GREEN}>
-                <Palette size={17} />
+              <Box p="6px" borderRadius="4px" border="1px solid var(--border)" bg="var(--bg)" color={LIVE_GREEN}>
+                <Palette size={15} />
               </Box>
             </Flex>
             <Text fontFamily={SERIF} fontSize="34px" color="var(--text)" letterSpacing="-0.02em" lineHeight="1.2">
               {maxPixels}{' '}
-              <Text as="span" fontFamily="'DM Sans', sans-serif" fontSize="14px" color="var(--muted)">
+              <Text as="span" fontFamily="var(--f-body)" fontSize="14px" color="var(--muted)">
                 {maxPixels === 1 ? 'pixel' : 'pixels'}
               </Text>
             </Text>
@@ -218,13 +218,13 @@ export default function RPlaceCanvasPage() {
           <Box {...statTile}>
             <Flex justify="space-between" align="center" mb="8px">
               <Text {...tileLabel}>Cooldown</Text>
-              <Box p="6px" borderRadius="10px" bg="rgba(230, 194, 122, 0.15)" color="#e6c27a">
-                <Zap size={17} />
+              <Box p="6px" borderRadius="4px" border="1px solid var(--border)" bg="var(--bg)" color="var(--text)">
+                <Zap size={15} />
               </Box>
             </Flex>
             <Text fontFamily={SERIF} fontSize="34px" color="var(--text)" letterSpacing="-0.02em" lineHeight="1.2">
               {cooldown}
-              <Text as="span" fontFamily="'DM Sans', sans-serif" fontSize="14px" color="var(--muted)">
+              <Text as="span" fontFamily="var(--f-body)" fontSize="14px" color="var(--muted)">
                 {' '}
                 sec
               </Text>
@@ -238,8 +238,8 @@ export default function RPlaceCanvasPage() {
         {/* Progress */}
         <Box
           p={{ base: '14px 16px', md: '18px 20px' }}
-          borderRadius="14px"
-          bg="var(--card-soft)"
+          borderRadius="4px"
+          bg="var(--surface)"
           border="1px solid var(--border)"
           w="100%"
           mb="24px"
@@ -250,16 +250,17 @@ export default function RPlaceCanvasPage() {
                 {isMaxBoost ? 'Max boost unlocked' : `${points} / ${targetPoints} points to unlock 10 pixels`}
               </Text>
               <Box
-                px="10px"
+                px="8px"
                 py="2px"
-                borderRadius="full"
-                fontSize="11px"
+                borderRadius="2px"
+                fontSize="10px"
                 fontWeight="700"
+                fontFamily="var(--f-mono)"
                 letterSpacing="0.06em"
-                bg={isMaxBoost ? 'rgba(127, 207, 159, 0.16)' : 'var(--accent-soft)'}
+                bg="var(--bg)"
                 color={isMaxBoost ? LIVE_GREEN : 'var(--accent)'}
                 border="1px solid"
-                borderColor={isMaxBoost ? 'rgba(127, 207, 159, 0.4)' : 'var(--border-strong)'}
+                borderColor="var(--border)"
               >
                 {isMaxBoost ? 'MAX BOOST' : `${targetPoints - points} PTS TO GO`}
               </Box>

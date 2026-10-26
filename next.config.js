@@ -49,6 +49,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'scontent.fotp8-1.fna.fbcdn.net' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
       { protocol: 'https', hostname: 'raw.githubusercontent.com' },
+      { protocol: 'https', hostname: 'github.com' },
       { protocol: 'https', hostname: '**' },
       { protocol: 'http', hostname: '**' },
     ],

@@ -1,7 +1,7 @@
-import { mode, StyleFunctionProps } from "@chakra-ui/theme-tools";
+import { StyleFunctionProps } from "@chakra-ui/theme-tools";
 const Card = {
   baseStyle: (props: StyleFunctionProps) => ({
-    p: "20px",
+    p: "24px",
     display: "flex",
     flexDirection: "column",
     width: "100%",
@@ -11,9 +11,7 @@ const Card = {
     wordWrap: "break-word",
     bg: 'var(--surface)',
     color: 'var(--fg)',
-    backdropFilter: 'blur(16px)',
-    WebkitBackdropFilter: 'blur(16px)',
-    border: '1px solid var(--line)',
+    border: '1px solid var(--border)',
     boxShadow: 'var(--shadow)',
     backgroundClip: "border-box",
   }),

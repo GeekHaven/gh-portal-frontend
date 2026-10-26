@@ -55,9 +55,9 @@ export type RowObj = {
 const columnHelper = createColumnHelper<RowObj>();
 
 const TROPHY_COLORS: Record<number, string> = {
-  1: "#F5C542", // Gold (Warm Amber)
-  2: "#94A3B8", // Silver (Slate Silver)
-  3: "#D97706", // Bronze (Warm Bronze)
+  1: "#C88A2B", // Gold (Muted Metal)
+  2: "#7A8288", // Silver (Natural Slate)
+  3: "#9E6446", // Bronze (Earthen Bronze)
 };
 
 const useIsomorphicLayoutEffect =
@@ -86,41 +86,23 @@ function RankBadge({ position }: { position: string | number }) {
       <Flex
         align="center"
         justify="center"
-        gap="6px"
-        px="12px"
-        py="4px"
-        borderRadius="full"
-        bg={
-          pos === 1
-            ? "rgba(245, 197, 66, 0.16)"
-            : pos === 2
-            ? "rgba(186, 215, 245, 0.16)"
-            : "rgba(235, 130, 60, 0.16)"
-        }
+        gap="5px"
+        px="8px"
+        py="2px"
+        borderRadius="2px"
+        bg="var(--bg)"
         border="1px solid"
-        borderColor={
-          pos === 1
-            ? "rgba(245, 197, 66, 0.55)"
-            : pos === 2
-            ? "rgba(186, 215, 245, 0.5)"
-            : "rgba(235, 130, 60, 0.5)"
-        }
-        boxShadow={
-          pos === 1
-            ? "0 0 16px rgba(245, 197, 66, 0.3)"
-            : pos === 2
-            ? "0 0 14px rgba(186, 215, 245, 0.25)"
-            : "0 0 14px rgba(235, 130, 60, 0.25)"
-        }
+        borderColor="var(--border)"
+        boxShadow="none"
       >
-        <FaTrophy color={trophyColor} size={13} />
+        <FaTrophy color={trophyColor} size={11} />
         <Text
           fontFamily="var(--f-mono), monospace"
-          fontWeight="900"
-          fontSize="13px"
+          fontWeight="700"
+          fontSize="12px"
           color={trophyColor}
         >
-          {pos}
+          0{pos}
         </Text>
       </Flex>
     );

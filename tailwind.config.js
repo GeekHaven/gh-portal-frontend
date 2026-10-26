@@ -1,64 +1,67 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
- 
-    // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        serif: ['var(--f-display)', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['var(--f-body)', 'DM Sans', 'sans-serif'],
+        serif: ['var(--f-display)', 'Shippori Mincho', 'Noto Serif JP', 'Georgia', 'serif'],
+        sans: ['var(--f-body)', 'Zen Kaku Gothic New', 'Noto Sans JP', 'DM Sans', 'sans-serif'],
         mono: ['var(--f-mono)', 'DM Mono', 'monospace'],
-        jp: ['var(--f-jp)', 'Shippori Mincho', 'serif'],
+        jp: ['var(--f-jp)', 'Shippori Mincho', 'Noto Serif JP', 'serif'],
       },
       colors: {
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        'muted-foreground': 'var(--muted-foreground)',
+        surface: 'var(--surface)',
+        'surface-2': 'var(--surface-2)',
+        border: 'var(--border)',
+        ring: 'var(--ring)',
+        'terminal-bg': 'var(--terminal-bg)',
+        'terminal-fg': 'var(--terminal-fg)',
+        washi: {
+          50: '#FAF9F6',
+          100: '#F7F5F0',
+          200: '#EFECE5',
+          300: '#E5E1D8',
+          400: '#DDD8CE',
+        },
+        sumi: {
+          900: '#1C1B1A',
+          800: '#2A2927',
+          700: '#42403C',
+          600: '#6B6760',
+          500: '#948F86',
+          400: '#B8B3AA',
+        },
+        vermilion: {
+          DEFAULT: '#C8412B',
+          hover: '#A83522',
+          soft: 'rgba(200, 65, 43, 0.08)',
+          hairline: 'rgba(200, 65, 43, 0.25)',
+        },
+        muted: {
+          DEFAULT: 'var(--muted-foreground)',
+        },
         accent: {
           DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)',
+          text: 'var(--accent-text)',
           hover: 'var(--accent-hover)',
           ink: 'var(--accent-ink)',
           soft: 'var(--accent-soft)',
         },
-        ember: 'var(--ember)',
-        navy: {
-          50: 'var(--navy-50)',
-          100: 'var(--navy-100)',
-          200: 'var(--navy-200)',
-          300: 'var(--navy-300)',
-          400: 'var(--navy-400)',
-          500: 'var(--navy-500)',
-          600: 'var(--navy-600)',
-          700: 'var(--navy-700)',
-          800: 'var(--navy-800)',
-          900: 'var(--navy-900)',
-        },
-        purple: {
-          50: 'var(--purple-50)',
-          100: 'var(--purple-100)',
-          200: 'var(--purple-200)',
-          300: 'var(--purple-300)',
-          400: 'var(--purple-400)',
-          500: 'var(--purple-500)',
-          600: 'var(--purple-600)',
-          700: 'var(--purple-700)',
-          800: 'var(--purple-800)',
-          900: 'var(--purple-900)',
-        },
-        appGray: {
-          50: 'var(--gray-50)',
-          100: 'var(--gray-100)',
-          200: 'var(--gray-200)',
-          300: 'var(--gray-300)',
-          400: 'var(--gray-400)',
-          500: 'var(--gray-500)',
-          600: 'var(--gray-600)',
-          700: 'var(--gray-700)',
-          800: 'var(--gray-800)',
-          900: 'var(--gray-900)',
-        },
+      },
+      borderRadius: {
+        DEFAULT: '4px',
+        sm: '2px',
+        md: '4px',
+        lg: '4px',
       },
     },
   },
@@ -67,5 +70,4 @@ module.exports = {
   corePlugins: {
     preflight: false,
   }
-
-}
+};

@@ -94,49 +94,52 @@ export default function AdminNavbar(props: AdminNavbarProps) {
             as="span"
             display={{ base: 'inline-block', md: 'inline' }}
             fontWeight="600"
-            className="text-sakura-gradient"
+            color="var(--accent)"
           >
             {name}
           </Text>
         </Text>
 
         <Flex align="center" gap="16px" pt="16px">
-          <SakuraToggle />
           <Menu>
             <MenuButton
-              transition="all 0.3s"
+              transition="all 0.2s"
               _focus={{ boxShadow: 'none' }}
-              _hover={{ transform: 'scale(1.05)' }}
             >
               <Avatar 
                 size="sm" 
                 name={name} 
                 src={avatarUrl} 
-                bg={opencodeTokens.colors.background.glassDark}
-                border={`2px solid ${opencodeTokens.colors.accent.sakura}`}
+                borderRadius="4px"
+                bg="var(--surface)"
+                border="1px solid var(--border)"
               />
             </MenuButton>
 
             <MenuList 
-              bg={opencodeTokens.colors.background.glassDark}
-              backdropFilter="blur(20px)"
-              border={`1px solid ${opencodeTokens.colors.border.light}`}
-              boxShadow={opencodeTokens.shadows.glass}
-              borderRadius={opencodeTokens.borders.radius.lg}
+              bg="var(--surface)"
+              border="1px solid var(--border)"
+              boxShadow="0 4px 12px rgba(0, 0, 0, 0.08)"
+              borderRadius="4px"
+              p="4px"
             >
               <MenuItem 
                 onClick={() => router.push('/user/profile')}
                 bg="transparent"
-                _hover={{ bg: opencodeTokens.colors.background.glassLight }}
-                color={opencodeTokens.colors.text.primary}
+                borderRadius="2px"
+                _hover={{ bg: 'var(--surface-subtle)' }}
+                color="var(--fg)"
+                fontSize="13px"
               >
                 Profile Settings
               </MenuItem>
               <MenuItem 
-                color={opencodeTokens.colors.accent.sakura} 
+                color="var(--accent)" 
                 onClick={handleLogout}
                 bg="transparent"
-                _hover={{ bg: opencodeTokens.colors.background.glassLight }}
+                borderRadius="2px"
+                _hover={{ bg: 'var(--surface-subtle)' }}
+                fontSize="13px"
               >
                 Log out
               </MenuItem>

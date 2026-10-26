@@ -62,40 +62,37 @@ export function SidebarLinks(props: SidebarLinksProps) {
               <Box>
                 <HStack
                   spacing={isActive ? '22px' : '26px'}
-                  py="12px"
+                  py="10px"
                   ps="16px"
                   data-nav-item
-                  borderRadius="12px"
-                  mb="8px"
-                  transition="all 0.3s ease"
-                  bg={isActive ? opencodeTokens.colors.background.glassLight : 'transparent'}
-                  _hover={{ bg: opencodeTokens.colors.background.glassLight }}
+                  borderRadius="4px"
+                  mb="6px"
+                  transition="all 0.15s ease"
+                  bg={isActive ? 'var(--surface-subtle)' : 'transparent'}
+                  _hover={{ bg: 'var(--surface-subtle)' }}
                 >
                   <Flex w="100%" alignItems="center" justifyContent="center">
                     <Box
-                      color={isActive ? opencodeTokens.colors.accent.sakura : opencodeTokens.colors.text.secondary}
-                      me="18px"
-                      transition="color 0.3s ease"
+                      color={isActive ? 'var(--accent)' : 'var(--muted)'}
+                      me="16px"
                     >
                       {route.icon}
                     </Box>
                     <Text
                       me="auto"
-                      color={isActive ? opencodeTokens.colors.text.primary : opencodeTokens.colors.text.secondary}
+                      color={isActive ? 'var(--fg)' : 'var(--muted)'}
                       fontWeight={isActive ? '600' : '500'}
-                      fontSize="15px"
-                      transition="color 0.3s ease"
+                      fontSize="14px"
                     >
                       {route.name}
                     </Text>
                   </Flex>
                   <Box
-                    h="24px"
-                    w="4px"
-                    bg={isActive ? opencodeTokens.colors.accent.sakura : 'transparent'}
-                    borderRadius="full"
-                    boxShadow={isActive ? `0 0 10px ${opencodeTokens.colors.accent.sakura}` : 'none'}
-                    transition="all 0.3s ease"
+                    h="20px"
+                    w="3px"
+                    bg={isActive ? 'var(--accent)' : 'transparent'}
+                    borderRadius="2px"
+                    boxShadow="none"
                   />
                 </HStack>
               </Box>
@@ -103,31 +100,29 @@ export function SidebarLinks(props: SidebarLinksProps) {
               <Box>
                 <HStack
                   spacing={isActive ? '22px' : '26px'}
-                  py="12px"
+                  py="10px"
                   ps="16px"
                   data-nav-item
-                  borderRadius="12px"
-                  mb="8px"
-                  transition="all 0.3s ease"
-                  bg={isActive ? opencodeTokens.colors.background.glassLight : 'transparent'}
-                  _hover={{ bg: opencodeTokens.colors.background.glassLight }}
+                  borderRadius="4px"
+                  mb="6px"
+                  transition="all 0.15s ease"
+                  bg={isActive ? 'var(--surface-subtle)' : 'transparent'}
+                  _hover={{ bg: 'var(--surface-subtle)' }}
                 >
                   <Text
                     me="auto"
-                    color={isActive ? opencodeTokens.colors.text.primary : opencodeTokens.colors.text.secondary}
+                    color={isActive ? 'var(--fg)' : 'var(--muted)'}
                     fontWeight={isActive ? '600' : '500'}
-                    fontSize="15px"
-                    transition="color 0.3s ease"
+                    fontSize="14px"
                   >
                     {route.name}
                   </Text>
                   <Box
-                    h="24px"
-                    w="4px"
-                    bg={isActive ? opencodeTokens.colors.accent.sakura : 'transparent'}
-                    borderRadius="full"
-                    boxShadow={isActive ? `0 0 10px ${opencodeTokens.colors.accent.sakura}` : 'none'}
-                    transition="all 0.3s ease"
+                    h="20px"
+                    w="3px"
+                    bg={isActive ? 'var(--accent)' : 'transparent'}
+                    borderRadius="2px"
+                    boxShadow="none"
                   />
                 </HStack>
               </Box>

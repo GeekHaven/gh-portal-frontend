@@ -91,7 +91,7 @@ export default function Register() {
           <RegistrationField name="year" label="Current year" value={formData.year} onChange={handleChange} options={['School', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Passout']} />
           <RegistrationField name="graduationYear" label="Graduation year" value={formData.graduationYear} onChange={handleChange} placeholder="Graduation year" type="number" />
         </div></section>
-        <Button type="submit" width="100%" height="48px" bg="var(--accent)" color="var(--accent-ink)" borderRadius="10px" fontSize="13px" _hover={{ bg: 'var(--accent-hover)' }} isLoading={registerMutation.isPending} loadingText="Creating your profile" rightIcon={<ArrowRight size={16} />}>Begin your journey</Button>
+        <Button type="submit" width="100%" height="46px" bg="var(--accent)" color="white" borderRadius="4px" fontSize="13px" fontWeight="600" _hover={{ bg: 'var(--accent-hover)' }} isLoading={registerMutation.isPending} loadingText="Creating your profile" rightIcon={<ArrowRight size={16} />}>Begin your journey</Button>
         <p className="oc-auth-fineprint">All fields are required. Let&apos;s make your profile feel like you.</p>
         <div className="oc-auth-links">Already part of the community? <Link href="/auth/sign-in">Sign in</Link></div>
       </form>

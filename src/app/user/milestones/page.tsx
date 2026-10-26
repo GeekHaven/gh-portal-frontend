@@ -140,13 +140,12 @@ export default function Milestones() {
             aria-label="Milestones categories"
             bg="var(--surface)"
             border="1px solid var(--border)"
-            p="4px"
-            borderRadius="999px"
-            boxShadow="var(--shadow)"
-            backdropFilter="blur(16px)"
+            p="2px"
+            borderRadius="4px"
+            boxShadow="none"
             maxW="100%"
             overflowX="auto"
-            gap="4px"
+            gap="2px"
             position="relative"
           >
             {TABS.map((tab, idx) => {
@@ -178,45 +177,32 @@ export default function Milestones() {
                     }
                   }}
                   position="relative"
-                  px={{ base: '14px', md: '20px' }}
-                  py={{ base: '8px', md: '9px' }}
-                  minH={{ base: '40px', md: '38px' }}
-                  borderRadius="999px"
-                  fontSize={{ base: '13px', md: '14px' }}
-                  fontFamily="var(--f-body)"
+                  px={{ base: '14px', md: '18px' }}
+                  py={{ base: '6px', md: '7px' }}
+                  minH={{ base: '36px', md: '34px' }}
+                  borderRadius="2px"
+                  fontSize={{ base: '12px', md: '13px' }}
+                  fontFamily="var(--f-mono)"
                   fontWeight={isSelected ? 600 : 500}
-                  color={isSelected ? 'var(--accent-ink)' : 'var(--muted)'}
+                  textTransform="uppercase"
+                  letterSpacing="0.06em"
+                  color={isSelected ? 'white' : 'var(--muted)'}
                   outline="none"
                   cursor="pointer"
                   border="none"
-                  bg="transparent"
+                  bg={isSelected ? 'var(--accent)' : 'transparent'}
                   whiteSpace="nowrap"
-                  transition="color 0.2s ease"
+                  transition="all 0.15s ease"
                   _hover={{
-                    color: isSelected ? 'var(--accent-ink)' : 'var(--fg)',
+                    color: isSelected ? 'white' : 'var(--fg)',
                   }}
                   _focusVisible={{
                     outline: '2px solid var(--accent)',
                     outlineOffset: '2px',
                   }}
                 >
-                  {/* Sliding pink indicator animated with layoutId */}
-                  {isSelected && (
-                    <motion.div
-                      layoutId="milestones-active-tab-indicator"
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        borderRadius: '999px',
-                        background: 'var(--accent)',
-                        boxShadow: '0 4px 14px -3px var(--accent)',
-                        zIndex: 0,
-                      }}
-                      transition={prefersReducedMotion ? { duration: 0.01 } : tabIndicatorTransition}
-                    />
-                  )}
                   <Flex align="center" gap={{ base: '6px', md: '8px' }} position="relative" zIndex={1}>
-                    <Icon as={IconComponent} boxSize={{ base: '15px', md: '17px' }} />
+                    <Icon as={IconComponent} boxSize={{ base: '14px', md: '15px' }} />
                     <span>{tab.label}</span>
                   </Flex>
                 </Box>

@@ -1,56 +1,67 @@
-import { mode, StyleFunctionProps } from "@chakra-ui/theme-tools";
+import { StyleFunctionProps } from "@chakra-ui/theme-tools";
+
 export const inputStyles = {
   components: {
     Input: {
       baseStyle: {
         field: {
           fontWeight: 400,
-          borderRadius: "8px",
+          borderRadius: "4px",
+          fontFamily: "var(--f-body)",
+          _focusVisible: {
+            borderColor: "var(--accent)",
+            boxShadow: "none",
+            outline: "2px solid var(--accent)",
+            outlineOffset: "1px",
+          },
         },
       },
 
       variants: {
-        main: (props: StyleFunctionProps) => ({
+        main: () => ({
           field: {
-            bg: mode("transparent", "navy.800")(props),
-            border: "1px solid",
-            color: mode("secondaryGray.900", "white")(props),
-            borderColor: mode("secondaryGray.100", "whiteAlpha.100")(props),
-            borderRadius: "16px",
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            color: "var(--fg)",
+            borderRadius: "4px",
             fontSize: "sm",
-            p: "20px",
-            _placeholder: { color: "secondaryGray.400" },
+            p: "10px 14px",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
         }),
-        auth: (props: StyleFunctionProps) => ({
+        auth: () => ({
           field: {
-            fontWeight: "500",
-            color: mode("navy.700", "white")(props),
-            bg: mode("transparent", "transparent")(props),
-            border: "1px solid",
-            borderColor: mode(
-              "secondaryGray.100",
-              "rgba(135, 140, 189, 0.3)"
-            )(props),
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600", fontWeight: "400" },
+            fontWeight: "400",
+            color: "var(--fg)",
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
         }),
         authSecondary: () => ({
           field: {
-            bg: "transparent",
-            border: "1px solid",
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
         }),
         search: () => ({
           field: {
             border: "none",
-            py: "11px",
-            borderRadius: "inherit",
-            _placeholder: { color: "secondaryGray.600" },
+            py: "8px",
+            borderRadius: "4px",
+            _placeholder: { color: "var(--muted)" },
           },
         }),
       },
@@ -59,46 +70,40 @@ export const inputStyles = {
       baseStyle: {
         field: {
           fontWeight: 400,
+          borderRadius: "4px",
+          fontFamily: "var(--f-body)",
+          _focusVisible: {
+            borderColor: "var(--accent)",
+            boxShadow: "none",
+            outline: "2px solid var(--accent)",
+            outlineOffset: "1px",
+          },
         },
       },
 
       variants: {
         main: () => ({
           field: {
-            bg: "transparent",
-            border: "1px solid",
-
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+            color: "var(--fg)",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
         }),
         auth: () => ({
           field: {
-            bg: "transparent",
-            border: "1px solid",
-
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-        }),
-        authSecondary: () => ({
-          field: {
-            bg: "transparent",
-            border: "1px solid",
-
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-        }),
-        search: () => ({
-          field: {
-            border: "none",
-            py: "11px",
-            borderRadius: "inherit",
-            _placeholder: { color: "secondaryGray.600" },
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+            color: "var(--fg)",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
         }),
       },
@@ -107,99 +112,46 @@ export const inputStyles = {
       baseStyle: {
         field: {
           fontWeight: 400,
+          borderRadius: "4px",
+          fontFamily: "var(--f-body)",
+          _focusVisible: {
+            borderColor: "var(--accent)",
+            boxShadow: "none",
+            outline: "2px solid var(--accent)",
+            outlineOffset: "1px",
+          },
         },
       },
 
       variants: {
-        main: (props: StyleFunctionProps) => ({
+        main: () => ({
           field: {
-            bg: mode("transparent", "navy.800")(props),
-            border: "1px solid",
-            color: "secondaryGray.600",
-            borderColor: mode("secondaryGray.100", "whiteAlpha.100")(props),
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            color: "var(--fg)",
+            borderRadius: "4px",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
           icon: {
-            color: "secondaryGray.600",
-          },
-        }),
-        mini: (props: StyleFunctionProps) => ({
-          field: {
-            bg: mode("transparent", "navy.800")(props),
-            border: "0px solid transparent",
-            fontSize: "0px",
-            p: "10px",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-          icon: {
-            color: "secondaryGray.600",
-          },
-        }),
-        subtle: () => ({
-          box: {
-            width: "unset",
-          },
-          field: {
-            bg: "transparent",
-            border: "0px solid",
-            color: "secondaryGray.600",
-            borderColor: "transparent",
-            width: "max-content",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-          icon: {
-            color: "secondaryGray.600",
-          },
-        }),
-        transparent: (props: StyleFunctionProps) => ({
-          field: {
-            bg: "transparent",
-            border: "0px solid",
-            width: "min-content",
-            color: mode("secondaryGray.600", "secondaryGray.600")(props),
-            borderColor: "transparent",
-            padding: "0px",
-            paddingLeft: "8px",
-            paddingRight: "20px",
-            fontWeight: "700",
-            fontSize: "14px",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-          icon: {
-            transform: "none !important",
-            position: "unset !important",
-            width: "unset",
-            color: "secondaryGray.600",
-            right: "0px",
+            color: "var(--muted)",
           },
         }),
         auth: () => ({
           field: {
-            bg: "transparent",
-            border: "1px solid",
-
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
+            bg: "var(--surface)",
+            border: "1px solid var(--border)",
+            color: "var(--fg)",
+            borderRadius: "4px",
+            _placeholder: { color: "var(--muted)" },
+            _hover: {
+              borderColor: "var(--border-strong)",
+            },
           },
-        }),
-        authSecondary: (props: StyleFunctionProps) => ({
-          field: {
-            bg: "transparent",
-            border: "1px solid",
-
-            borderColor: "secondaryGray.100",
-            borderRadius: "16px",
-            _placeholder: { color: "secondaryGray.600" },
-          },
-        }),
-        search: (props: StyleFunctionProps) => ({
-          field: {
-            border: "none",
-            py: "11px",
-            borderRadius: "inherit",
-            _placeholder: { color: "secondaryGray.600" },
+          icon: {
+            color: "var(--muted)",
           },
         }),
       },

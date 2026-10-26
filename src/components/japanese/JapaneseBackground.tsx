@@ -1,19 +1,37 @@
 'use client';
 
-import { ReactNode } from 'react';
-import Image from 'next/image';
+import React, { ReactNode } from 'react';
 
-type JapaneseBackgroundVariant = 'events' | 'leaderboard' | 'faq' | 'auth' | 'home' | 'winners' | 'milestones' | 'profile';
+type JapaneseBackgroundVariant =
+  | 'events'
+  | 'leaderboard'
+  | 'faq'
+  | 'auth'
+  | 'home'
+  | 'winners'
+  | 'milestones'
+  | 'profile';
 
-export default function JapaneseBackground({ variant, children }: { variant: JapaneseBackgroundVariant; children: ReactNode }) {
-  const image = ['faq', 'profile', 'milestones'].includes(variant) ? 'kyoto-garden' : variant === 'auth' ? 'kyoto-torii' : 'kyoto-evening';
+export default function JapaneseBackground({
+  variant,
+  children,
+}: {
+  variant: JapaneseBackgroundVariant;
+  children: ReactNode;
+}) {
   return (
-    <div className={`japanese-page oc-scene-${variant}`}>
-      <div className="oc-scenery" aria-hidden="true">
-        <Image src={`/images/${image}.png`} alt="" fill priority sizes="100vw" quality={85} />
-        <div className="oc-scene-overlay" />
+    <div
+      className={`japanese-page oc-scene-${variant} relative bg-[var(--background)] text-[var(--foreground)] min-h-screen flex flex-col overflow-x-hidden`}
+    >
+      {/* Subtle paper grain / radial dot pattern */}
+      <div
+        className="absolute inset-0 bg-[radial-gradient(var(--border)_1px,transparent_1px)] [background-size:28px_28px] opacity-20 pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="oc-scene-content relative z-10 flex-1 flex flex-col">
+        {children}
       </div>
-      <div className="oc-scene-content">{children}</div>
     </div>
   );
 }

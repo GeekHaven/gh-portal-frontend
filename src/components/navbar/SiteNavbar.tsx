@@ -2,404 +2,313 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  Menu,
-  X,
-  Volume2,
-  VolumeX,
-  Film,
-  UserRound,
-  ArrowUpRight,
-} from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, X, ArrowUpRight, User, LogOut } from 'lucide-react';
 import { useAuth } from 'contexts/AuthContext';
 import { useFeatures } from 'contexts/FeaturesContext';
 import ThemeToggle from 'components/japanese/ThemeToggle';
-import SakuraToggle from 'components/common/SakuraToggle';
 import OpenCodeLogo from 'components/common/OpenCodeLogo';
-
-function cn(...inputs: (string | boolean | undefined | null)[]): string {
-  return inputs.filter(Boolean).join(' ');
-}
-
-const navigation = [
-  { label: 'Home', href: '/' },
-  { label: 'Events', href: '/user/events' },
-  { label: 'Leaderboard', href: '/user/leaderboard/Opencode' },
-  { label: 'RPlace Canvas', href: '/user/rplace' },
-  { label: 'Winners', href: '/user/winners' },
-  { label: 'Milestones', href: '/user/milestones' },
-  { label: 'Repositories', href: '/user/repos' },
-  { label: 'FAQ', href: '/faq' },
-];
 
 export default function SiteNavbar() {
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const router = useRouter();
+  const { isLoggedIn, logout } = useAuth();
   const { features } = useFeatures();
 
   const [mounted, setMounted] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [heroMuted, setHeroMuted] = useState(false);
-
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [profileName, setProfileName] = useState<string>('');
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  const activeNavigation = navigation.filter((item) => {
-    if (item.href === '/user/winners' && !features.showWinners) return false;
-    if (item.href === '/user/milestones' && !features.showMilestones) return false;
-    if (item.href === '/user/leaderboard/Opencode' && !features.showLeaderboard) return false;
-    if (item.href === '/user/repos' && !features.showRepositories) return false;
-    if (item.href === '/user/rplace' && !features.showRPlace) return false;
-    return true;
-  });
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setProfileName(user?.name?.split(' ')?.[0] || user?.githubId || 'Profile');
+      }
+    } catch {
+      setProfileName('Profile');
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 24);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Synchronize audio on homepage
+  const flagshipEvent = features?.flagshipEvent || 'Opencode';
+
+  const baseNavigation = [
+    { label: 'Events', href: '/user/events' },
+    { label: 'Leaderboard', href: `/user/leaderboard/${flagshipEvent}` },
+    { label: 'Repositories', href: '/user/repos' },
+    { label: 'Milestones', href: '/user/milestones' },
+    { label: 'Canvas', href: '/user/rplace' },
+    { label: 'Winners', href: '/user/winners' },
+    { label: 'FAQ', href: '/faq' },
+  ];
+
+  const activeNavigation = baseNavigation.filter((item) => {
+    if (item.href === '/user/winners' && !features.showWinners) return false;
+    if (item.href === '/user/milestones' && !features.showMilestones) return false;
+    if (item.href.includes('/leaderboard') && !features.showLeaderboard) return false;
+    if (item.href === '/user/repos' && !features.showRepositories) return false;
+    if (item.href === '/user/rplace' && !features.showRPlace) return false;
+    return true;
+  });
+
+  // Include Profile in navigation items when logged in
+  if (mounted && isLoggedIn) {
+    activeNavigation.push({ label: 'Profile', href: '/user/profile' });
+  }
+
+  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (pathname !== '/') return;
-    const handleSoundState = (e: Event) => {
-      const customEvent = e as CustomEvent<{ isMuted: boolean }>;
-      if (customEvent.detail && typeof customEvent.detail.isMuted === 'boolean') {
-        setHeroMuted(customEvent.detail.isMuted);
-      }
-    };
-
-    window.addEventListener('hero-sound-state', handleSoundState);
-    window.dispatchEvent(new CustomEvent('query-hero-sound'));
-
-    return () => {
-      window.removeEventListener('hero-sound-state', handleSoundState);
-    };
-  }, [pathname]);
-
-  const toggleHeroSound = () => {
-    setHeroMuted((prev) => !prev);
-    window.dispatchEvent(new CustomEvent('toggle-hero-sound'));
-  };
-
-  const openTrailer = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('open-cinematic-landing'));
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
-  };
-
-  // Close mobile navigation on click outside or escape key
-  useEffect(() => {
-    if (!isMenuOpen) return;
-    const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as Node;
-      if (
-        mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(target) &&
-        toggleButtonRef.current &&
-        !toggleButtonRef.current.contains(target)
-      ) {
-        setIsMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsMenuOpen(false);
-        toggleButtonRef.current?.focus();
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    document.addEventListener('touchstart', handleOutsideClick);
-    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('touchstart', handleOutsideClick);
-      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
     };
-  }, [isMenuOpen]);
+  }, [isMobileOpen]);
 
   const isLinkActive = (href: string) => {
     if (href === '/') return pathname === '/';
     if (href.includes('/leaderboard')) return pathname?.includes('/leaderboard');
+    if (href.includes('/profile')) return pathname?.includes('/profile');
     return pathname?.startsWith(href);
   };
 
-  return (
-    <header className="fixed top-0 inset-x-0 z-50 px-3 sm:px-6 pt-2 sm:pt-3 pointer-events-none transition-all duration-300">
-      <div className="flex items-center justify-center gap-2 sm:gap-3 w-full mx-auto max-w-[1440px]">
-        {/* Main Capsule Navbar */}
-        <nav
-          className={cn(
-            "pointer-events-auto flex items-center justify-between transition-all duration-300 oc-capsule-navbar min-w-0",
-            scrolled
-              ? "flex-1 max-w-5xl rounded-full px-3.5 sm:px-5 py-2 shadow-[0_0_30px_rgba(7,19,31,0.8)]"
-              : "flex-1 max-w-6xl rounded-[2.75rem] px-4 sm:px-6 py-2.5 sm:py-3 shadow-[0_20px_80px_-50px_rgba(7,19,31,0.7)]"
-          )}
-        >
-          {/* Left: Brand Title with Logo */}
-          <Link
-            href="/"
-            className="flex items-center group shrink-0 gap-2 sm:gap-2.5 pr-1"
-            onClick={() => {
-              if (pathname === '/') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-              setIsMenuOpen(false);
-            }}
-          >
-            <OpenCodeLogo width={24} height={24} className="oc-brand-mark transition-transform group-hover:scale-105 shrink-0" />
-            <span className="text-base sm:text-lg font-bold tracking-tight text-[#F4F1E8] group-hover:opacity-90 transition-opacity whitespace-nowrap">
-              OpenCode<span className="text-[#B8E5D5]">&apos;26</span>
-            </span>
-          </Link>
+  const handleLogout = () => {
+    logout();
+    setIsMobileOpen(false);
+    router.push('/auth/sign-in');
+  };
 
-          {/* Center: Desktop Navigation Links Pill */}
-          <div className="hidden xl:flex items-center gap-0.5 xl:gap-1 backdrop-blur-xl px-2 py-1 xl:px-2.5 xl:py-1 rounded-full oc-capsule-pill shadow-inner shrink min-w-0 mx-1 sm:mx-2">
+  return (
+    <>
+      <header
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-[var(--background)]/95 backdrop-blur-md border-b border-[var(--border)] shadow-xs py-3'
+            : 'bg-transparent border-b border-transparent py-5'
+        }`}
+      >
+        <div className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+          {/* Desktop 3-Column Grid: [Logo | Nav (Truly Centered) | Right Slot] */}
+          <div className="hidden lg:grid grid-cols-[auto_1fr_auto] items-center w-full gap-6">
+            
+            {/* 1. TOP LEFT: OpenCode logo */}
+            <div className="justify-self-start flex items-center">
+              <Link
+                href="/"
+                className="group flex items-center gap-2.5 text-[var(--foreground)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                aria-label="OpenCode 2026 Home"
+              >
+                <OpenCodeLogo
+                  width={22}
+                  height={22}
+                  color="var(--foreground)"
+                  className="transition-opacity group-hover:opacity-75"
+                />
+                <span className="font-serif text-[15px] font-medium tracking-wide text-[var(--foreground)]">
+                  OPENCODE <span className="font-mono text-xs text-[var(--accent)] tracking-normal">&apos;26</span>
+                </span>
+              </Link>
+            </div>
+
+            {/* 2. TOP CENTER: Navbar text-only links truly centered on the page */}
+            <nav
+              className="justify-self-center flex items-center gap-4 xl:gap-7"
+              aria-label="Main Navigation"
+            >
+              {activeNavigation.map((item) => {
+                const active = isLinkActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative py-1 text-[11px] xl:text-xs font-mono tracking-wider transition-colors duration-200 uppercase whitespace-nowrap ${
+                      active
+                        ? 'text-[var(--foreground)] font-semibold'
+                        : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {/* Active link thin underline in accent color */}
+                    {active && (
+                      <span
+                        className="absolute bottom-0 inset-x-0 h-[1.5px] bg-[var(--accent)]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* 3. RIGHT SLOT: Auth CTA (Profile / Sign In) & Theme Toggle */}
+            <div className="justify-self-end flex items-center gap-3">
+              <ThemeToggle />
+
+              {mounted && isLoggedIn ? (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/user/profile"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[2px] border text-xs font-mono uppercase tracking-wider transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] ${
+                      pathname?.includes('/profile')
+                        ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--accent-foreground)] font-medium'
+                        : 'border-[var(--border)] hover:border-[var(--foreground)] text-[var(--foreground)] bg-[var(--surface)]'
+                    }`}
+                    title="View your profile"
+                  >
+                    <User size={13} className={pathname?.includes('/profile') ? 'text-[var(--accent-foreground)]' : 'text-[var(--accent)]'} />
+                    <span className="max-w-[100px] truncate">{profileName || 'Profile'}</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="p-1.5 rounded-[2px] text-[var(--muted-foreground)] hover:text-[var(--accent)] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                    title="Sign Out"
+                    aria-label="Sign Out"
+                  >
+                    <LogOut size={15} />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/sign-in"
+                  className="px-3.5 py-1.5 rounded-[2px] border border-[var(--border)] hover:border-[var(--foreground)] text-xs font-mono uppercase tracking-wider text-[var(--foreground)] bg-[var(--surface)] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+
+          </div>
+
+          {/* Mobile/Tablet Header: Logo Left, Theme + Hamburger Right (<1024px) */}
+          <div className="flex lg:hidden items-center justify-between w-full">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-[var(--foreground)]"
+              onClick={() => setIsMobileOpen(false)}
+            >
+              <OpenCodeLogo width={20} height={20} color="var(--foreground)" />
+              <span className="font-serif text-sm font-medium tracking-wide">
+                OPENCODE <span className="font-mono text-xs text-[var(--accent)]">&apos;26</span>
+              </span>
+            </Link>
+
+            <div className="flex items-center gap-2.5">
+              <ThemeToggle />
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen((prev) => !prev)}
+                className="p-2 rounded-[2px] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:border-[var(--foreground)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                aria-expanded={isMobileOpen}
+                aria-label={isMobileOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+              >
+                {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Full-Screen Mobile/Tablet Menu (<1024px) */}
+      {isMobileOpen && (
+        <div
+          ref={mobileMenuRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
+          className="fixed inset-0 z-40 bg-[var(--background)] flex flex-col justify-between pt-24 pb-10 px-8 lg:hidden overflow-y-auto"
+        >
+          <nav className="flex flex-col space-y-4" aria-label="Mobile Links">
+            <Link
+              href="/"
+              onClick={() => setIsMobileOpen(false)}
+              className="font-serif text-xl sm:text-2xl text-[var(--foreground)] border-b border-[var(--border)] pb-3"
+            >
+              Overview
+            </Link>
             {activeNavigation.map((item) => {
-              const isActive = isLinkActive(item.href);
+              const active = isLinkActive(item.href);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={cn(
-                    "relative z-10 px-2 xl:px-2.5 2xl:px-3 py-1 text-xs xl:text-[13px] font-medium rounded-full transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58B99A]/50 oc-capsule-link whitespace-nowrap shrink-0",
-                    isActive
-                      ? "text-[#F4F1E8] bg-[#102535] border border-[#58B99A]/40 shadow-sm shadow-[#58B99A]/20 font-semibold"
-                      : "text-[#AEBCC7] hover:text-[#F4F1E8] hover:bg-[#102535]/50 border border-transparent"
-                  )}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={`font-serif text-xl sm:text-2xl flex items-center justify-between border-b border-[var(--border)] pb-3 transition-colors ${
+                    active ? 'text-[var(--accent)] font-semibold' : 'text-[var(--foreground)]'
+                  }`}
                 >
-                  {item.label === 'RPlace Canvas' ? (
-                    <>
-                      <span className="hidden 2xl:inline">RPlace Canvas</span>
-                      <span className="2xl:hidden">RPlace</span>
-                    </>
-                  ) : item.label === 'Repositories' ? (
-                    <>
-                      <span className="hidden 2xl:inline">Repositories</span>
-                      <span className="2xl:hidden">Repos</span>
-                    </>
-                  ) : (
+                  <div className="flex items-center gap-2.5">
+                    {item.label === 'Profile' && <User size={20} className="text-[var(--accent)]" />}
                     <span>{item.label}</span>
-                  )}
+                  </div>
+                  <ArrowUpRight size={18} className="text-[var(--muted-foreground)]" />
                 </Link>
               );
             })}
-          </div>
+          </nav>
 
-          {/* Right: Actions (Sakura, Theme, Auth, Mobile Toggle) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 shrink-0">
-              <SakuraToggle />
-              <ThemeToggle />
-            </div>
-
-            <div className="hidden sm:block w-[1px] h-4 bg-[#AEBCC7]/20 mx-0.5 shrink-0" />
-
-            {/* Dynamic Sign In / Profile action pill */}
-            <Link
-              href={mounted && isLoggedIn ? "/user/profile" : "/auth/sign-in"}
-              aria-current={pathname?.startsWith('/user/profile') || pathname?.startsWith('/auth') ? 'page' : undefined}
-              className={cn(
-                "relative z-10 flex items-center gap-1.5 px-3 py-1 sm:px-3.5 sm:py-1.5 text-xs xl:text-sm font-semibold rounded-full transition-all duration-200 cursor-pointer shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58B99A]/50 shrink-0 whitespace-nowrap",
-                mounted && isLoggedIn
-                  ? "bg-[#58B99A]/15 text-[#B8E5D5] border border-[#58B99A]/30 hover:bg-[#58B99A]/25"
-                  : "bg-[#B8E5D5] text-[#0C1C2C] hover:bg-[#A3DAC7] shadow-md shadow-[#58B99A]/20"
-              )}
-            >
-              {mounted && isLoggedIn ? (
-                <>
-                  <UserRound className="w-3.5 h-3.5 text-[#B8E5D5]" />
-                  <span>Profile</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </>
-              )}
-            </Link>
-
-            {/* Mobile Hamburger Toggle Button */}
-            <div className="xl:hidden flex items-center shrink-0">
-              <button
-                ref={toggleButtonRef}
-                onClick={() => setIsMenuOpen((prev) => !prev)}
-                className="text-[#AEBCC7] hover:text-[#F4F1E8] p-1.5 sm:p-2 rounded-full bg-[#102535]/55 border border-[#AEBCC7]/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58B99A]/50 transition-colors cursor-pointer"
-                aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-                aria-expanded={isMenuOpen}
-                aria-controls="mobile-nav-menu"
-              >
-                {isMenuOpen ? (
-                  <X className="h-5 w-5 text-[#F4F1E8]" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        {/* Standalone Control Capsules: Play Trailer & Sound (shown on landing page) */}
-        {pathname === "/" && (
-          <div className="pointer-events-auto shrink-0 hidden md:flex items-center gap-1.5 sm:gap-2">
-            {/* Play Trailer Button */}
-            <button
-              type="button"
-              onClick={openTrailer}
-              className={cn(
-                "group flex items-center gap-2 rounded-full border border-[#AEBCC7]/20 bg-[#102535]/70 hover:bg-[#102535]/95 text-xs sm:text-sm font-semibold text-[#F4F1E8] backdrop-blur-md shadow-lg shadow-[#07131F]/80 hover:border-[#58B99A]/45 transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58B99A]/50 shrink-0",
-                scrolled
-                  ? "px-2.5 sm:px-3 py-2"
-                  : "px-3 sm:px-3.5 py-2.5"
-              )}
-              title="Play cinematic trailer"
-            >
-              <Film className="w-4 h-4 text-[#58B99A] transition-transform duration-300 group-hover:scale-110 shrink-0" />
-              <span className="hidden xl:inline text-[#F4F1E8] whitespace-nowrap">Play Trailer</span>
-            </button>
-
-            {/* Sound Switch Button */}
-            <button
-              type="button"
-              onClick={toggleHeroSound}
-              className={cn(
-                "group flex items-center gap-2 rounded-full border border-[#AEBCC7]/20 bg-[#102535]/70 hover:bg-[#102535]/95 text-xs sm:text-sm font-semibold text-[#F4F1E8] backdrop-blur-md shadow-lg shadow-[#07131F]/80 hover:border-[#58B99A]/45 transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#58B99A]/50 shrink-0",
-                scrolled
-                  ? "px-2.5 sm:px-3 py-2"
-                  : "px-3 sm:px-3.5 py-2.5"
-              )}
-              title={heroMuted ? "Turn background audio on" : "Turn background audio off"}
-            >
-              {heroMuted ? (
-                <>
-                  <VolumeX className="w-4 h-4 text-[#718394] transition-colors group-hover:text-[#58B99A] shrink-0" />
-                  <span className="hidden xl:inline text-[#AEBCC7] group-hover:text-[#F4F1E8] transition-colors whitespace-nowrap">
-                    Sound Off
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-[#58B99A] animate-pulse shrink-0" />
-                  <span className="hidden xl:inline text-[#F4F1E8] whitespace-nowrap">Sound On</span>
-                  <span className="hidden xl:flex items-end gap-0.5 h-3 ml-0.5">
-                    <span className="w-0.5 bg-[#58B99A] animate-pulse h-2.5" />
-                    <span className="w-0.5 bg-[#58B99A] animate-pulse h-1.5" />
-                    <span className="w-0.5 bg-[#58B99A] animate-pulse h-3" />
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Mobile Menu Dropdown */}
-      <div
-        id="mobile-nav-menu"
-        ref={mobileMenuRef}
-        role="dialog"
-        aria-label="Mobile Navigation Menu"
-        className={cn(
-          "pointer-events-auto xl:hidden mt-3 w-full max-w-5xl mx-auto rounded-2xl backdrop-blur-2xl bg-[#0B1C2A]/95 border border-[#AEBCC7]/20 p-4 space-y-2 shadow-2xl transition-all duration-300 ease-out",
-          isMenuOpen
-            ? "opacity-100 translate-y-0 visible pointer-events-auto"
-            : "opacity-0 -translate-y-4 invisible pointer-events-none"
-        )}
-      >
-        <div className="flex items-center justify-between pb-2 border-b border-[#AEBCC7]/15 mb-2 sm:hidden">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#AEBCC7]">Controls</span>
-          <div className="flex items-center gap-2">
-            <SakuraToggle />
-            <ThemeToggle />
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          {activeNavigation.map((item) => {
-            const isActive = isLinkActive(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMenuOpen(false)}
-                className={cn(
-                  "w-full text-left rounded-xl px-4 py-2.5 text-sm sm:text-base font-medium transition-all cursor-pointer flex items-center justify-between",
-                  isActive
-                    ? "text-[#F4F1E8] bg-[#102535] border border-[#58B99A]/40 font-semibold"
-                    : "text-[#AEBCC7] hover:text-[#F4F1E8] hover:bg-[#102535]/60"
-                )}
-              >
-                <span>{item.label}</span>
-                {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#58B99A]" />
-                )}
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className="h-px bg-[#AEBCC7]/15 my-2" />
-
-        <div className="space-y-2 pt-1">
-          {pathname === "/" && (
-            <div className="flex items-center gap-2 pt-1 pb-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  openTrailer();
-                }}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-[#F4F1E8] bg-[#102535]/80 border border-[#AEBCC7]/20"
-              >
-                <Film className="w-3.5 h-3.5 text-[#58B99A]" />
-                <span>Play Trailer</span>
-              </button>
-              <button
-                type="button"
-                onClick={toggleHeroSound}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-semibold text-[#F4F1E8] bg-[#102535]/80 border border-[#AEBCC7]/20"
-              >
-                {heroMuted ? (
-                  <>
-                    <VolumeX className="w-3.5 h-3.5 text-[#718394]" />
-                    <span>Sound Off</span>
-                  </>
-                ) : (
-                  <>
-                    <Volume2 className="w-3.5 h-3.5 text-[#58B99A]" />
-                    <span>Sound On</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          <Link
-            href={mounted && isLoggedIn ? "/user/profile" : "/auth/sign-in"}
-            onClick={() => setIsMenuOpen(false)}
-            className={cn(
-              "w-full text-left rounded-xl px-4 py-2.5 text-sm sm:text-base font-semibold transition-all flex items-center justify-between",
-              mounted && isLoggedIn
-                ? "bg-[#58B99A]/15 text-[#B8E5D5] border border-[#58B99A]/30 hover:bg-[#58B99A]/25"
-                : "bg-[#B8E5D5] text-[#0C1C2C] hover:bg-[#A3DAC7] shadow-md shadow-[#58B99A]/20"
+          <div className="pt-8 border-t border-[var(--border)] flex flex-col gap-3">
+            {mounted && isLoggedIn ? (
+              <div className="flex flex-col gap-2.5">
+                <Link
+                  href="/user/profile"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="w-full py-3 rounded-[2px] bg-[var(--accent)] text-[var(--accent-foreground)] text-center text-xs font-mono uppercase tracking-wider font-medium flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                >
+                  <User size={15} />
+                  <span>My Profile ({profileName || 'Contributor'})</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full py-2.5 rounded-[2px] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-center text-xs font-mono uppercase tracking-wider font-medium hover:border-[var(--accent)] transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                >
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2.5">
+                <Link
+                  href="/auth/sign-in"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="w-full py-3 rounded-[2px] border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] text-center text-xs font-mono uppercase tracking-wider font-medium hover:border-[var(--foreground)] focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                >
+                  Sign In to OpenCode
+                </Link>
+                <Link
+                  href="/auth/register"
+                  onClick={() => setIsMobileOpen(false)}
+                  className="w-full py-2.5 rounded-[2px] bg-[var(--accent)] text-[var(--accent-foreground)] text-center text-xs font-mono uppercase tracking-wider font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
+                >
+                  Create Account
+                </Link>
+              </div>
             )}
-          >
-            <div className="flex items-center gap-2.5">
-              <UserRound className="w-4 h-4" />
-              <span>{mounted && isLoggedIn ? "My Profile" : "Sign In to OpenCode"}</span>
-            </div>
-            <ArrowUpRight className="w-4 h-4" />
-          </Link>
+            <p className="text-[11px] font-mono text-[var(--muted-foreground)] text-center pt-2">
+              GeekHaven IIIT Allahabad • Winter 2026
+            </p>
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }
