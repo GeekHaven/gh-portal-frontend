@@ -182,8 +182,8 @@ export default function SiteNavbar() {
           className={cn(
             "pointer-events-auto flex items-center justify-between transition-all duration-300 oc-capsule-navbar min-w-0",
             scrolled
-              ? "flex-1 max-w-6xl rounded-full px-3.5 sm:px-5 py-2 shadow-2xl"
-              : "flex-1 max-w-6xl rounded-full px-3.5 sm:px-5 py-2.5 sm:py-3 shadow-xl"
+              ? "flex-1 max-w-6xl 2xl:max-w-7xl rounded-full px-3.5 sm:px-5 py-2 shadow-2xl"
+              : "flex-1 max-w-6xl 2xl:max-w-7xl rounded-full px-3.5 sm:px-5 py-2.5 sm:py-3 shadow-xl"
           )}
         >
           {/* Left: Brand Title with Logo */}
@@ -204,7 +204,7 @@ export default function SiteNavbar() {
           </Link>
 
           {/* Center: Desktop Navigation Links Pill */}
-          <div className="hidden xl:flex items-center gap-0.5 xl:gap-1 backdrop-blur-xl px-2 py-1 xl:px-2.5 xl:py-1 rounded-full oc-capsule-pill shadow-inner shrink min-w-0 mx-1 sm:mx-2">
+          <div className="hidden xl:flex items-center gap-0 xl:gap-0.5 backdrop-blur-xl px-1.5 py-1 xl:px-2 xl:py-1 rounded-full oc-capsule-pill shadow-inner shrink min-w-0 mx-1 sm:mx-2">
             {activeNavigation.map((item) => {
               const isActive = isLinkActive(item.href);
               return (
@@ -304,7 +304,7 @@ export default function SiteNavbar() {
               title="Play cinematic trailer"
             >
               <Film className="w-4 h-4 text-[var(--accent-bold)] transition-transform duration-300 group-hover:scale-110 shrink-0" />
-              <span className="hidden xl:inline text-[var(--fg)] whitespace-nowrap">Play Trailer</span>
+             <span className="hidden text-[var(--fg)] whitespace-nowrap">Play Trailer</span>
             </button>
 
             {/* Sound Switch Button */}
@@ -320,15 +320,15 @@ export default function SiteNavbar() {
               {heroMuted ? (
                 <>
                   <VolumeX className="w-4 h-4 text-[var(--subtle)] transition-colors group-hover:text-[var(--accent)] shrink-0" />
-                  <span className="hidden xl:inline text-[var(--muted)] group-hover:text-[var(--fg)] transition-colors whitespace-nowrap">
+                  <span className="hidden text-[var(--muted)] group-hover:text-[var(--fg)] transition-colors whitespace-nowrap">
                     Sound Off
                   </span>
                 </>
               ) : (
                 <>
                   <Volume2 className="w-4 h-4 text-[var(--accent-bold)] animate-pulse shrink-0" />
-                  <span className="hidden xl:inline text-[var(--fg)] whitespace-nowrap">Sound On</span>
-                  <span className="hidden xl:flex items-end gap-0.5 h-3 ml-0.5">
+                  <span className="hidden text-[var(--fg)] whitespace-nowrap">Sound On</span>
+                  <span className="hidden items-end gap-0.5 h-3 ml-0.5">
                     <span className="w-0.5 bg-[var(--accent-bold)] animate-pulse h-2.5" />
                     <span className="w-0.5 bg-[var(--accent-bold)] animate-pulse h-1.5" />
                     <span className="w-0.5 bg-[var(--accent-bold)] animate-pulse h-3" />
