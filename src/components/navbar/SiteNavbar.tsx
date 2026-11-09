@@ -182,8 +182,8 @@ export default function SiteNavbar() {
           className={cn(
             "pointer-events-auto flex items-center justify-between transition-all duration-300 oc-capsule-navbar min-w-0",
             scrolled
-              ? "flex-1 max-w-5xl rounded-full px-3.5 sm:px-5 py-2 shadow-2xl"
-              : "flex-1 max-w-6xl rounded-[2.75rem] px-4 sm:px-6 py-2.5 sm:py-3 shadow-xl"
+              ? "flex-1 max-w-6xl rounded-full px-3.5 sm:px-5 py-2 shadow-2xl"
+              : "flex-1 max-w-6xl rounded-full px-3.5 sm:px-5 py-2.5 sm:py-3 shadow-xl"
           )}
         >
           {/* Left: Brand Title with Logo */}
@@ -239,7 +239,7 @@ export default function SiteNavbar() {
 
           {/* Right: Actions (Sakura, Theme, Auth, Mobile Toggle) */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <div className="hidden sm:flex items-center gap-1 shrink-0">
               <SakuraToggle />
               <ThemeToggle />
             </div>
@@ -292,16 +292,14 @@ export default function SiteNavbar() {
 
         {/* Standalone Control Capsules: Play Trailer & Sound (shown on landing page) */}
         {pathname === "/" && (
-          <div className="pointer-events-auto shrink-0 hidden md:flex items-center gap-1.5 sm:gap-2">
+          <div className="pointer-events-auto shrink hidden md:flex items-center gap-1.5 sm:gap-2">
             {/* Play Trailer Button */}
             <button
               type="button"
               onClick={openTrailer}
               className={cn(
                 "group flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-2)] text-xs sm:text-sm font-semibold text-[var(--fg)] backdrop-blur-md shadow-lg hover:border-[var(--border-accent)] transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50 shrink-0",
-                scrolled
-                  ? "px-2.5 sm:px-3 py-2"
-                  : "px-3 sm:px-3.5 py-2.5"
+                "px-2.5 sm:px-3 py-2"
               )}
               title="Play cinematic trailer"
             >
@@ -315,9 +313,7 @@ export default function SiteNavbar() {
               onClick={toggleHeroSound}
               className={cn(
                 "group flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-2)] text-xs sm:text-sm font-semibold text-[var(--fg)] backdrop-blur-md shadow-lg hover:border-[var(--border-accent)] transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/50 shrink-0",
-                scrolled
-                  ? "px-2.5 sm:px-3 py-2"
-                  : "px-3 sm:px-3.5 py-2.5"
+                "px-2.5 sm:px-3 py-2"
               )}
               title={heroMuted ? "Turn background audio on" : "Turn background audio off"}
             >
