@@ -95,7 +95,9 @@ export default function MyOrdersPage() {
             </Link>
           </div>
         }
-      />
+      >
+        注文履歴
+      </PageHeading>
 
       {/* Filter Tabs Bar */}
       <div className="mt-8 mb-6 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--line)]">

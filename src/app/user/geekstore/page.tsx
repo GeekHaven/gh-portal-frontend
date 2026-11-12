@@ -220,7 +220,9 @@ export default function GeekstorePage() {
             </button>
           </div>
         }
-      />
+      >
+        購買部
+      </PageHeading>
 
       {/* Filter and Search Bar */}
       <div className="mt-6 sm:mt-8 mb-6 sm:mb-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 rounded-[var(--r)] border border-[var(--border)] bg-[var(--surface)] p-3 sm:p-5 backdrop-blur-xl shadow-[var(--shadow)]">
