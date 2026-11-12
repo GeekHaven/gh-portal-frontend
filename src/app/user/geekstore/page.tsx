@@ -261,7 +261,9 @@ export default function GeekstorePage() {
             </button>
           </div>
         }
-      />
+      >
+        購買部
+      </PageHeading>
 
       {/* Hero Showcase Banner */}
       <div className="relative mt-8 overflow-hidden rounded-[24px] border border-[var(--border)] bg-gradient-to-br from-[var(--surface-2)] via-[var(--surface)] to-[var(--surface-2)] p-6 sm:p-8 backdrop-blur-xl shadow-[var(--shadow)]">
