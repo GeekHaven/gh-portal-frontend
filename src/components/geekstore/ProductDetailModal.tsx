@@ -80,7 +80,7 @@ export default function ProductDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
@@ -89,19 +89,19 @@ export default function ProductDetailModal({
       />
 
       {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-[24px] border border-[var(--border-strong)] bg-[var(--surface-raised)] shadow-[0_24px_64px_rgba(0,0,0,0.8)] backdrop-blur-2xl z-10 my-auto animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-[24px] border border-[var(--border-strong)] bg-[var(--surface-raised)] shadow-[0_24px_64px_rgba(0,0,0,0.8)] backdrop-blur-2xl z-10 my-auto animate-in zoom-in-95 duration-200">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--surface-2)]/90 text-[var(--fg)] border border-[var(--border)] transition-transform hover:scale-110 hover:text-[var(--accent)]"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--surface-2)]/90 text-[var(--fg)] border border-[var(--border)] transition-transform hover:scale-110 hover:text-[var(--accent)]"
         >
           <X size={18} />
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Image Showcase */}
-          <div className="relative aspect-square md:aspect-auto md:h-full min-h-[340px] bg-[var(--card-soft)] overflow-hidden border-b md:border-b-0 md:border-r border-[var(--border)]">
+          <div className="relative aspect-[16/10] md:aspect-auto md:h-full min-h-[220px] sm:min-h-[260px] md:min-h-[340px] bg-[var(--card-soft)] overflow-hidden border-b md:border-b-0 md:border-r border-[var(--border)]">
             {!imgError && item.imageUrl ? (
               <Image
                 src={item.imageUrl}
@@ -122,7 +122,7 @@ export default function ProductDetailModal({
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--surface-raised)]/90 via-transparent to-transparent md:hidden" />
-            <div className="absolute bottom-4 left-4">
+            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
               <span className="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-[var(--card-bg)]/90 text-[var(--accent)] border border-[var(--border-accent)] backdrop-blur-md">
                 {item.category || 'Official Swag'}
               </span>
@@ -130,7 +130,7 @@ export default function ProductDetailModal({
           </div>
 
           {/* Details & Actions */}
-          <div className="flex flex-col justify-between p-6 sm:p-8">
+          <div className="flex flex-col justify-between p-4 sm:p-6 md:p-8">
             <div>
               <div className="flex items-center justify-between gap-2 mb-2 pr-6">
                 <span className="text-xs uppercase tracking-widest text-[var(--muted)] font-mono">

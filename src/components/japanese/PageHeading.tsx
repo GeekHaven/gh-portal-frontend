@@ -32,18 +32,14 @@ export default function PageHeading({
   return (
     <AnimatedContent distance={20} duration={0.5}>
       <header
+        className="oc-page-header flex flex-col sm:flex-row items-start justify-between gap-5 sm:gap-7 w-full"
         style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          gap: '28px',
-          marginBottom: hideBorder ? '24px' : '32px',
+          marginBottom: hideBorder ? '20px' : '32px',
           paddingBottom: hideBorder ? '0px' : '28px',
           borderBottom: hideBorder ? 'none' : '1px solid var(--line)',
-          width: '100%',
         }}
       >
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="w-full min-w-0 flex-1">
           {eyebrow && (
             <p className="oc-eyebrow" style={{ marginBottom: '14px' }}>
               <span />
@@ -64,7 +60,7 @@ export default function PageHeading({
               style={{
                 fontFamily: 'var(--f-display)',
                 fontWeight: 300,
-                fontSize: 'clamp(32px, 5.5vw, 54px)',
+                fontSize: 'clamp(28px, 5.5vw, 54px)',
                 lineHeight: 1.15,
                 letterSpacing: '0.02em',
                 color: 'var(--fg)',
@@ -76,20 +72,20 @@ export default function PageHeading({
             {badge}
           </div>
 
-          <p className="oc-description" style={{ maxWidth: '720px' }}>
+          <p className="oc-description break-words" style={{ maxWidth: '720px' }}>
             {description}
           </p>
         </div>
 
         {rightContent && (
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap w-full sm:w-auto justify-start sm:justify-end shrink-0 mt-1 sm:mt-0">
             {rightContent}
           </div>
         )}
 
         {children && (
           <div
-            className="oc-heading-aside"
+            className="oc-heading-aside hidden sm:block"
             style={{
               fontFamily: 'var(--f-jp)',
               color: resolvedAsideColor,

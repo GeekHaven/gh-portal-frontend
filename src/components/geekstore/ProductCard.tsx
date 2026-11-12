@@ -148,7 +148,7 @@ export default function ProductCard({
             type="button"
             disabled={isOutOfStock}
             onClick={(e) => onToggleSelect(item, e)}
-            className={`w-full flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-xs font-semibold transition-all duration-200 ${
+            className={`w-full flex items-center justify-center gap-2 rounded-full py-2.5 px-4 text-xs font-semibold transition-all duration-200 min-h-[44px] ${
               isSelected
                 ? 'bg-[var(--accent)] text-[var(--accent-ink)] shadow-[0_2px_14px_rgba(88,185,154,0.4)] hover:bg-[var(--accent-hover)]'
                 : 'border border-[var(--border)] bg-[var(--surface-2)] text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] hover:bg-[var(--accent-soft)]'
