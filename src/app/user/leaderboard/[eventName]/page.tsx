@@ -39,6 +39,7 @@ import PageHeading from 'components/japanese/PageHeading';
 import ContributorAvatar from 'components/common/ContributorAvatar';
 import { isMaintainer } from 'constants/Maintainers';
 import { getLeaderboardEventConfig } from 'config/leaderboard.config';
+import { useFeatures } from 'contexts/FeaturesContext';
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
 import { FetchedEvents } from '../../../../api/events/events';
 
@@ -94,9 +95,28 @@ export default function EventName() {
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const isStale = searchQuery !== deferredSearchQuery;
 
+  const { features } = useFeatures();
   const eventLabel = safeDecode(eventName);
   const isOpencode = eventLabel.toLowerCase().includes('opencode');
-  const eventConfig = useMemo(() => getLeaderboardEventConfig(eventLabel), [eventLabel]);
+  const eventConfig = useMemo(() => {
+    // 1. If admin configured this event in Admin Panel, that takes top priority!
+    const adminConfig =
+      features.leaderboardConfigs?.[eventLabel] ||
+      features.leaderboardConfigs?.[eventName] ||
+      (eventLabel ? features.leaderboardConfigs?.[eventLabel.trim()] : undefined);
+
+    if (adminConfig) {
+      return {
+        searchPlaceholder: adminConfig.searchPlaceholder || 'Search participants...',
+        showCollegeFilter: Boolean(adminConfig.showCollegeFilter),
+        showFirstYearFilter: Boolean(adminConfig.showFirstYearFilter),
+        showEventSelector: adminConfig.showEventSelector !== false,
+      };
+    }
+
+    // 2. Fall back to smart default configuration
+    return getLeaderboardEventConfig(eventLabel);
+  }, [features.leaderboardConfigs, eventLabel, eventName]);
 
   const { data: eventData } = useQuery({
     queryKey: ['EventInfo'],

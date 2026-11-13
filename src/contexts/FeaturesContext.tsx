@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { fetchPlatformFeatures, updatePlatformFeaturesInDb } from 'api/admin/admin';
+import type { LeaderboardEventConfig } from 'config/leaderboard.config';
 
 export interface FeaturesConfig {
   showWinners: boolean;
@@ -10,12 +11,14 @@ export interface FeaturesConfig {
   showRepositories: boolean;
   showLeaderboard: boolean;
   flagshipEvent?: string | null;
+  leaderboardConfigs?: Record<string, LeaderboardEventConfig>;
 }
 
 interface FeaturesContextType {
   features: FeaturesConfig;
   toggleFeature: (key: keyof FeaturesConfig, value: boolean) => Promise<boolean>;
   setFlagshipEvent: (eventName: string | null) => Promise<boolean>;
+  saveLeaderboardConfig: (eventName: string, config: LeaderboardEventConfig) => Promise<boolean>;
   refreshFeatures: () => Promise<void>;
 }
 
@@ -28,12 +31,14 @@ const DEFAULT_FEATURES: FeaturesConfig = {
   showRPlace: true,
   showLeaderboard: true,
   flagshipEvent: 'Rift CTF',
+  leaderboardConfigs: {},
 };
 
 const FeaturesContext = createContext<FeaturesContextType>({
   features: DEFAULT_FEATURES,
   toggleFeature: async () => false,
   setFlagshipEvent: async () => false,
+  saveLeaderboardConfig: async () => false,
   refreshFeatures: async () => {},
 });
 
@@ -79,6 +84,7 @@ export function FeaturesProvider({ children }: { children: ReactNode }) {
               showRepositories: typeof data.showRepositories === 'boolean' ? data.showRepositories : prev.showRepositories,
               showLeaderboard: typeof data.showLeaderboard === 'boolean' ? data.showLeaderboard : prev.showLeaderboard,
               flagshipEvent: data.flagshipEvent !== undefined ? data.flagshipEvent : prev.flagshipEvent,
+              leaderboardConfigs: data.leaderboardConfigs || prev.leaderboardConfigs || {},
             };
             try {
               localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -177,8 +183,40 @@ export function FeaturesProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const saveLeaderboardConfig = useCallback(async (eventName: string, config: LeaderboardEventConfig) => {
+    let nextConfigs: Record<string, LeaderboardEventConfig> = {};
+    setFeatures((prev) => {
+      nextConfigs = {
+        ...(prev.leaderboardConfigs || {}),
+        [eventName]: config,
+      };
+      const next = { ...prev, leaderboardConfigs: nextConfigs };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const res = await fetch('/api/features', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          leaderboardConfigs: nextConfigs,
+        }),
+      });
+      return res.ok;
+    } catch {
+      return true; // Still persisted locally in localStorage and React state
+    }
+  }, []);
+
   return (
-    <FeaturesContext.Provider value={{ features, toggleFeature, setFlagshipEvent, refreshFeatures }}>
+    <FeaturesContext.Provider value={{ features, toggleFeature, setFlagshipEvent, saveLeaderboardConfig, refreshFeatures }}>
       {children}
     </FeaturesContext.Provider>
   );

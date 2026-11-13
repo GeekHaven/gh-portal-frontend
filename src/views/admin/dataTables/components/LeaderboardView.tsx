@@ -28,6 +28,7 @@ import { FetchedLeaderboard, type LeaderboardEntry } from 'api/leaderboard/leade
 import { FetchedEvents } from 'api/events/events';
 import { isMaintainer } from 'constants/Maintainers';
 import { getLeaderboardEventConfig } from 'config/leaderboard.config';
+import { useFeatures } from 'contexts/FeaturesContext';
 
 interface LeaderboardViewProps {
   initialEventName?: string;
@@ -94,8 +95,20 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
     router.push(`/user/leaderboard/${encodeURIComponent(newEvent)}`);
   };
 
+  const { features } = useFeatures();
   const isOpencode = (activeEvent || '').toLowerCase().includes('opencode');
-  const eventConfig = useMemo(() => getLeaderboardEventConfig(activeEvent), [activeEvent]);
+  const eventConfig = useMemo(() => {
+    const adminConfig = features.leaderboardConfigs?.[activeEvent];
+    if (adminConfig) {
+      return {
+        searchPlaceholder: adminConfig.searchPlaceholder || 'Search participants...',
+        showCollegeFilter: Boolean(adminConfig.showCollegeFilter),
+        showFirstYearFilter: Boolean(adminConfig.showFirstYearFilter),
+        showEventSelector: adminConfig.showEventSelector !== false,
+      };
+    }
+    return getLeaderboardEventConfig(activeEvent);
+  }, [features.leaderboardConfigs, activeEvent]);
 
   const tableDataColumns: RowObj[] = useMemo(() => {
     const rawList = LeadData || [];

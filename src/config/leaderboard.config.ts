@@ -77,3 +77,4 @@ export function getLeaderboardEventConfig(eventName?: string): LeaderboardEventC
     showEventSelector: true,
   };
 }
+

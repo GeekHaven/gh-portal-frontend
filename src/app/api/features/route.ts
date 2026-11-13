@@ -11,6 +11,7 @@ const DEFAULT_CONFIG = {
   showRepositories: true,
   showRPlace: true,
   flagshipEvent: 'Opencode',
+  leaderboardConfigs: {} as Record<string, any>,
 };
 
 let cache = { ...DEFAULT_CONFIG };
@@ -53,6 +54,7 @@ export async function GET() {
           showLeaderboard: typeof data.showLeaderboard === 'boolean' ? data.showLeaderboard : cache.showLeaderboard,
           showRepositories: typeof data.showRepositories === 'boolean' ? data.showRepositories : cache.showRepositories,
           showRPlace: typeof data.showRPlace === 'boolean' ? data.showRPlace : cache.showRPlace,
+          leaderboardConfigs: data.leaderboardConfigs || cache.leaderboardConfigs || {},
         };
         cache = merged;
         return NextResponse.json(merged);
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
       showRepositories: typeof body.showRepositories === 'boolean' ? body.showRepositories : current.showRepositories,
       showRPlace: typeof body.showRPlace === 'boolean' ? body.showRPlace : current.showRPlace,
       flagshipEvent: body.flagshipEvent !== undefined ? body.flagshipEvent : (current.flagshipEvent ?? null),
+      leaderboardConfigs: body.leaderboardConfigs !== undefined ? body.leaderboardConfigs : (current.leaderboardConfigs ?? {}),
     };
 
     cache = updated;
