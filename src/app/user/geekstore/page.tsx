@@ -251,17 +251,17 @@ export default function GeekstorePage() {
   }
 
   return (
-    <div className="w-full max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-32">
+    <div className="w-full max-w-[1380px] mx-auto px-1 sm:px-4 lg:px-8 py-2 sm:py-6 pb-36 sm:pb-32">
       {/* Page Header */}
       <PageHeading
         eyebrow="GEEKSTORE / MERCHANDISE & GEAR"
         title="Official Geekstore"
         description="Exclusive OpenCode '26 and GeekHaven apparel, developer hoodies, stickers, and limited-edition swag. Select your favorites and proceed to the order form."
         rightContent={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <Link
               href="/user/geekstore/orders"
-              className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2 text-xs font-semibold text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all shadow-sm"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2 text-xs font-semibold text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all min-h-[40px] shadow-sm"
             >
               <Package size={14} />
               <span>My Orders</span>
@@ -270,7 +270,7 @@ export default function GeekstorePage() {
             <button
               type="button"
               onClick={handleProceedToForm}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all min-h-[40px] ${
                 totalSelectedCount > 0
                   ? 'bg-[var(--accent)] text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] shadow-[0_2px_14px_rgba(88,185,154,0.35)]'
                   : 'border border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)] hover:text-[var(--fg)]'
@@ -286,7 +286,9 @@ export default function GeekstorePage() {
             </button>
           </div>
         }
-      />
+      >
+        購買部
+      </PageHeading>
 
       {/* Hero Showcase Banner */}
       <div className="relative mt-6 overflow-hidden rounded-[20px] border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-7 backdrop-blur-xl shadow-[var(--shadow)]">
@@ -380,7 +382,7 @@ export default function GeekstorePage() {
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder="Search hoodies, tees, deskmats, stickers by keyword..."
-            className="w-full rounded-full border border-[var(--border)] bg-[var(--surface-2)] pl-10 pr-10 py-2.5 text-xs text-[var(--fg)] placeholder-[var(--subtle)] outline-none focus:border-[var(--accent)] transition-all"
+            className="w-full rounded-full border border-[var(--border)] bg-[var(--surface-2)] pl-10 pr-10 py-2.5 text-xs text-[var(--fg)] placeholder-[var(--subtle)] outline-none focus:border-[var(--accent)] transition-all min-h-[42px]"
           />
           {searchQuery && (
             <button
@@ -396,7 +398,7 @@ export default function GeekstorePage() {
         {/* Sort & In-Stock Controls */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Sort By Dropdown */}
-          <div className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-3 py-1.5">
+          <div className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-3 py-1.5 min-h-[38px]">
             <ArrowUpDown size={13} className="text-[var(--subtle)]" />
             <select
               value={sortBy}
@@ -414,7 +416,7 @@ export default function GeekstorePage() {
           <button
             type="button"
             onClick={handleStockToggle}
-            className={`flex items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-medium transition-all ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-xs font-medium transition-all min-h-[38px] ${
               inStockOnly
                 ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[0_0_10px_rgba(88,185,154,0.2)]'
                 : 'border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)] hover:text-[var(--fg)]'
@@ -587,9 +589,9 @@ export default function GeekstorePage() {
       {totalSelectedCount > 0 && (
         <aside
           aria-label="Proceed to Order Form"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-xl animate-in slide-in-from-bottom duration-300"
+          className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-xl animate-in slide-in-from-bottom duration-300"
         >
-          <div className="flex items-center justify-between gap-3 rounded-full border border-[var(--border-accent)] bg-[var(--surface-raised)]/95 px-4 sm:px-5 py-3 shadow-[0_16px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl ring-1 ring-[var(--accent)]/20">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl sm:rounded-full border border-[var(--border-accent)] bg-[var(--surface-raised)]/95 p-3 sm:px-5 sm:py-3 shadow-[0_16px_40px_rgba(0,0,0,0.7)] backdrop-blur-2xl ring-1 ring-[var(--accent)]/20">
             <div className="flex items-center gap-3 min-w-0">
               {/* Stacked Thumbnails */}
               <div className="hidden sm:flex -space-x-2 overflow-hidden py-1">
@@ -623,7 +625,7 @@ export default function GeekstorePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={handleClearSelection}
@@ -636,7 +638,7 @@ export default function GeekstorePage() {
               <button
                 type="button"
                 onClick={handleProceedToForm}
-                className="flex items-center gap-2 rounded-full bg-[var(--accent)] px-4 py-2 text-xs font-bold text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] transition-all shadow-[0_2px_14px_rgba(88,185,154,0.35)]"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-4 py-2.5 text-xs font-bold text-[var(--accent-ink)] hover:bg-[var(--accent-hover)] transition-all shadow-[0_2px_14px_rgba(88,185,154,0.35)] min-h-[40px] shrink-0"
               >
                 <span>Fill Order Form</span>
                 <ArrowRight size={14} />

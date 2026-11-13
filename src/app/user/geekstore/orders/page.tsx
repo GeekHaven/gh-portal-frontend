@@ -103,24 +103,26 @@ export default function MyOrdersPage() {
   }
 
   return (
-    <div className="w-full max-w-[1344px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="w-full max-w-[1344px] mx-auto px-1 sm:px-4 lg:px-8 py-2 sm:py-6">
       {/* Header */}
       <PageHeading
         eyebrow="GEEKSTORE / TRACKING & HISTORY"
         title="My Orders & Tracking"
         description="Track campus delivery progress, inspect purchased merchandise and receipt details, or manage placed orders."
         rightContent={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <Link
               href="/user/geekstore"
-              className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2 text-xs font-semibold text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+              className="flex items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface-2)] px-4 py-2 text-xs font-semibold text-[var(--fg)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all min-h-[40px] w-full sm:w-auto"
             >
               <ArrowLeft size={14} />
               <span>Back to Storefront</span>
             </Link>
           </div>
         }
-      />
+      >
+        注文履歴
+      </PageHeading>
 
       {/* Filter Tabs Bar */}
       <div className="mt-8 mb-6 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-[var(--line)]">
