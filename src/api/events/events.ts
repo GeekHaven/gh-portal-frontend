@@ -1,4 +1,4 @@
-import { getApiBase } from 'utils/apiBase';
+import { getApiBase, normalizeEventName } from 'utils/apiBase';
 
 export async function FetchedEvents() {
   const response = await fetch(
@@ -29,9 +29,10 @@ export async function getUserIssueDetails(
   }
 
   const token = localStorage.getItem('token');
+  const cleanEventName = normalizeEventName(eventName);
 
   const response = await fetch(
-    `${getApiBase()}/api/v1/participant/${githubId}/${eventName}/issues`,
+    `${getApiBase()}/api/v1/participant/${encodeURIComponent(githubId)}/${encodeURIComponent(cleanEventName)}/issues`,
     {
       method: 'GET',
       headers: {
@@ -61,9 +62,10 @@ export async function getUserIssueDetails(
 }
 
 export async function FetchedRepos(eventName: string) {
+  const cleanEventName = normalizeEventName(eventName);
 
   const response = await fetch(
-    `${getApiBase()}/api/v1/events/${eventName}/repos`,
+    `${getApiBase()}/api/v1/events/${encodeURIComponent(cleanEventName)}/repos`,
     {
       method: 'GET',
       headers: {
@@ -81,8 +83,10 @@ export async function FetchedRepos(eventName: string) {
 }
 
 export async function FetchedEventDetails(eventName: string) {
+  const cleanEventName = normalizeEventName(eventName);
+
   const response = await fetch(
-    `${getApiBase()}/api/v1/events/${encodeURIComponent(eventName)}`,
+    `${getApiBase()}/api/v1/events/${encodeURIComponent(cleanEventName)}`,
     {
       method: 'GET',
       headers: {
@@ -92,7 +96,7 @@ export async function FetchedEventDetails(eventName: string) {
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch event details for ${eventName}`);
+    throw new Error(`Failed to fetch event details for ${cleanEventName}`);
   }
 
   const result = await response.json();

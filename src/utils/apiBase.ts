@@ -6,3 +6,18 @@ export function getApiBase(): string {
   return backendUrl.replace(/\/+$/, '');
 }
 
+
+export function normalizeEventName(name?: string): string {
+  let clean = (name || '').trim();
+  while (clean.includes('%')) {
+    try {
+      const decoded = decodeURIComponent(clean);
+      if (decoded === clean) break;
+      clean = decoded;
+    } catch {
+      break;
+    }
+  }
+  return clean.trim();
+}
+

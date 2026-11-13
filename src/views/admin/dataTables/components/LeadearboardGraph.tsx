@@ -16,7 +16,7 @@ import RingLoader from 'react-spinners/RingLoader';
 import { FaCalendarAlt, FaClock, FaTrophy, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { isMaintainer } from 'constants/Maintainers';
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
-import { getApiBase } from 'utils/apiBase';
+import { getApiBase, normalizeEventName } from 'utils/apiBase';
 
 export type ParticipantSeries = {
   participantId: string;
@@ -58,7 +58,8 @@ async function fetchProgress(
       ? localStorage.getItem('token')
       : null;
 
-  const url = `${getApiBase()}/api/v1/leaderboard/progress?eventName=${encodeURIComponent(eventName)}&topN=${topN}`;
+  const cleanEventName = normalizeEventName(eventName);
+  const url = `${getApiBase()}/api/v1/leaderboard/progress?eventName=${encodeURIComponent(cleanEventName)}&topN=${topN}`;
   
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -66,7 +67,7 @@ async function fetchProgress(
   // Fetch progress and rankings together
   const [progressResponse, leaderboardRows] = await Promise.all([
     fetch(url, { headers }),
-    FetchedLeaderboard(eventName),
+    FetchedLeaderboard(cleanEventName),
   ]);
 
   if (!progressResponse.ok) {

@@ -1,10 +1,11 @@
 // src/api/admin/admin.ts
-import { getApiBase } from 'utils/apiBase';
+import { getApiBase, normalizeEventName } from 'utils/apiBase';
 import { EXPECTED_SNAPSHOT_BYTES } from 'config/canvas.config';
 
 export async function getUserPRDetails(githubId: string, eventName: string) {
+  const cleanEventName = normalizeEventName(eventName);
   const response = await fetch(
-    `${getApiBase()}/api/v1/participant/${githubId}/${eventName}/pr`,
+    `${getApiBase()}/api/v1/participant/${encodeURIComponent(githubId)}/${encodeURIComponent(cleanEventName)}/pr`,
     {
       method: 'GET',
       headers: {
@@ -200,12 +201,13 @@ export async function uploadEventLeaderboard(eventName: string, file: File) {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No token found. Please sign in as admin.');
 
+  const cleanEventName = normalizeEventName(eventName);
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('eventName', eventName);
+  formData.append('eventName', cleanEventName);
 
   const response = await fetch(
-    `${getApiBase()}/api/v1/admin/event/${encodeURIComponent(eventName)}/leaderboard/upload`,
+    `${getApiBase()}/api/v1/admin/event/${encodeURIComponent(cleanEventName)}/leaderboard/upload`,
     {
       method: 'POST',
       headers: {
@@ -340,7 +342,8 @@ export async function updateEventDetails(
   if (!token) throw new Error('No token found. Please sign in as admin.');
 
   const baseUrl = getApiBase();
-  const url = `${baseUrl}/api/v1/admin/event/${encodeURIComponent(eventName)}/update`;
+  const cleanEventName = normalizeEventName(eventName);
+  const url = `${baseUrl}/api/v1/admin/event/${encodeURIComponent(cleanEventName)}/update`;
 
   const response = await fetch(url, {
     method: 'PATCH',

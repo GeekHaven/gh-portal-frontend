@@ -41,6 +41,7 @@ import { isMaintainer } from 'constants/Maintainers';
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
 import { FetchedEvents } from '../../../../api/events/events';
 import { isAdminUser } from 'utils/jwt';
+import { normalizeEventName } from 'utils/apiBase';
 import EditEventModal from 'components/modals/EditEventModal';
 
 const CONTROL_H = '44px';
@@ -52,11 +53,7 @@ const MEDALS = {
 } as const;
 
 function safeDecode(value: string | undefined): string {
-  try {
-    return decodeURIComponent(value ?? '');
-  } catch {
-    return value ?? '';
-  }
+  return normalizeEventName(value);
 }
 
 /* Shared look for every control in the toolbar so heights, borders and hover states match. */
@@ -164,13 +161,13 @@ export default function EventName() {
     setSelectedCollege('All');
     setFirstYearOnly(false);
     setSearchQuery('');
-  }, [eventName]);
+  }, [eventLabel]);
 
   const { data: LeadData, isLoading } = useQuery({
-    queryKey: ['LeadInfo', eventName],
-    queryFn: () => FetchedLeaderboard(eventName),
+    queryKey: ['LeadInfo', eventLabel],
+    queryFn: () => FetchedLeaderboard(eventLabel),
     refetchInterval: 10000,
-    enabled: !!eventName,
+    enabled: !!eventLabel,
   });
 
   // Base list of participants eligible for ranking (excluding mentors & maintainers for Opencode)
