@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -10,40 +10,80 @@ import {
   Input,
   Select,
   Text,
-  Heading,
   Badge,
   Switch,
   useToast,
   SimpleGrid,
   HStack,
-  Icon,
 } from '@chakra-ui/react';
-import { Sliders, Search, Building2, Calendar, Trophy, Check, Sparkles, RefreshCw } from 'lucide-react';
+import { Sliders, Search, Building2, Calendar, Trophy, Check, ArrowLeft } from 'lucide-react';
 import { useFeatures } from 'contexts/FeaturesContext';
 import { getLeaderboardEventConfig, type LeaderboardEventConfig } from 'config/leaderboard.config';
 
 interface Props {
-  events: Array<{ name: string; [key: string]: any }>;
+  events?: Array<{ name: string; [key: string]: any }>;
 }
 
-export default function AdminLeaderboardConfigSection({ events }: Props) {
+export default function AdminLeaderboardConfigSection({ events = [] }: Props) {
   const toast = useToast();
   const { features, saveLeaderboardConfig } = useFeatures();
 
+  // Deduplicated list of all available events (API events + flagship + already configured + fallbacks)
+  const availableEventNames = useMemo(() => {
+    const set = new Set<string>();
+    const list: string[] = [];
+
+    const add = (name?: string) => {
+      if (!name) return;
+      const trimmed = name.trim();
+      const lower = trimmed.toLowerCase();
+      if (!trimmed || set.has(lower)) return;
+      set.add(lower);
+      list.push(trimmed);
+    };
+
+    // 1. Current flagship event from context
+    if (features.flagshipEvent) add(features.flagshipEvent);
+
+    // 2. Events returned from backend API (if available)
+    if (Array.isArray(events)) {
+      for (const ev of events) {
+        if (typeof ev === 'string') add(ev);
+        else if (ev?.name) add(ev.name);
+      }
+    }
+
+    // 3. Events already configured in leaderboardConfigs
+    if (features.leaderboardConfigs) {
+      for (const key of Object.keys(features.leaderboardConfigs)) {
+        add(key);
+      }
+    }
+
+    // 4. Default portal events to ensure dropdown is never empty
+    add('Rift CTF');
+    add('Opencode');
+
+    return list;
+  }, [events, features.flagshipEvent, features.leaderboardConfigs]);
+
   // Selected event to configure
   const [targetEvent, setTargetEvent] = useState<string>('');
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
+  const [customEventName, setCustomEventName] = useState<string>('');
+
   const [searchPlaceholder, setSearchPlaceholder] = useState<string>('');
   const [showCollegeFilter, setShowCollegeFilter] = useState<boolean>(true);
   const [showFirstYearFilter, setShowFirstYearFilter] = useState<boolean>(true);
   const [showEventSelector, setShowEventSelector] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  // Initialize selected event to first event or Opencode
+  // Initialize selected event to first available event (e.g. Rift CTF) so it's never empty
   useEffect(() => {
-    if (!targetEvent && events && events.length > 0) {
-      setTargetEvent(events[0]?.name || 'Opencode');
+    if (!targetEvent && availableEventNames.length > 0 && !isCustomMode) {
+      setTargetEvent(availableEventNames[0]);
     }
-  }, [events, targetEvent]);
+  }, [availableEventNames, targetEvent, isCustomMode]);
 
   // When targetEvent changes, load its configured or default settings
   useEffect(() => {
@@ -64,23 +104,50 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
     }
   }, [targetEvent, features.leaderboardConfigs]);
 
+  const handleSelectEvent = (val: string) => {
+    if (val === '__custom__') {
+      setIsCustomMode(true);
+      setCustomEventName('');
+      setTargetEvent('');
+    } else {
+      setIsCustomMode(false);
+      setTargetEvent(val);
+    }
+  };
+
   const handleSave = async () => {
-    if (!targetEvent) return;
+    const finalEvent = (isCustomMode ? customEventName : targetEvent).trim();
+    if (!finalEvent) {
+      toast({
+        title: 'Event name required',
+        description: 'Please select or type an event name to configure.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
 
     setIsSaving(true);
     try {
       const newConfig: LeaderboardEventConfig = {
-        searchPlaceholder: searchPlaceholder.trim() || 'Search participants...',
+        searchPlaceholder: searchPlaceholder.trim() || `Search ${finalEvent} participants...`,
         showCollegeFilter,
         showFirstYearFilter,
         showEventSelector,
       };
 
-      await saveLeaderboardConfig(targetEvent, newConfig);
+      await saveLeaderboardConfig(finalEvent, newConfig);
+
+      // If in custom mode, exit and lock onto the newly created event
+      if (isCustomMode) {
+        setIsCustomMode(false);
+        setTargetEvent(finalEvent);
+      }
 
       toast({
         title: 'Leaderboard Settings Saved',
-        description: `Leaderboard filters & search for "${targetEvent}" updated successfully.`,
+        description: `Leaderboard filters & search for "${finalEvent}" updated successfully.`,
         status: 'success',
         duration: 3500,
         isClosable: true,
@@ -99,13 +166,14 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
   };
 
   const applyPreset = (type: 'all' | 'search_only' | 'default') => {
+    const activeLabel = isCustomMode ? customEventName.trim() : targetEvent;
     if (type === 'all') {
       setSearchPlaceholder('Search name or GitHub ID...');
       setShowCollegeFilter(true);
       setShowFirstYearFilter(true);
       setShowEventSelector(true);
     } else if (type === 'search_only') {
-      setSearchPlaceholder(`Search ${targetEvent || 'participants'}...`);
+      setSearchPlaceholder(`Search ${activeLabel || 'participants'}...`);
       setShowCollegeFilter(false);
       setShowFirstYearFilter(false);
       setShowEventSelector(true);
@@ -125,6 +193,8 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
     });
   };
 
+  const currentDisplayEvent = isCustomMode ? customEventName.trim() : targetEvent;
+
   return (
     <Box
       bg="var(--surface)"
@@ -138,12 +208,12 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
       <Flex justify="space-between" align={{ base: 'flex-start', sm: 'center' }} mb="16px" flexWrap="wrap" gap="10px">
         <Flex align="center" gap="10px">
           <Box p="8px" borderRadius="10px" bg="var(--accent-soft)" color="var(--accent)">
-            <Icon as={Sliders} boxSize={5} />
+            <Sliders size={20} />
           </Box>
           <div>
-            <Heading size="md" color="var(--fg)">
-              Leaderboard Filters & Search Configuration
-            </Heading>
+            <Text fontSize="lg" fontWeight="800" color="var(--fg)">
+              Leaderboard Filters &amp; Search Configuration
+            </Text>
             <Text fontSize="xs" color="var(--muted)">
               Configure which sub-components and filters appear on each event&apos;s leaderboard.
             </Text>
@@ -167,26 +237,69 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
       {/* Target Event Selection */}
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing="16px" mb="20px">
         <FormControl>
-          <FormLabel fontSize="xs" fontWeight="700" color="var(--muted)" textTransform="uppercase">
-            Select Event to Configure
-          </FormLabel>
-          <Select
-            value={targetEvent}
-            onChange={(e) => setTargetEvent(e.target.value)}
-            bg="var(--surface-2)"
-            borderColor="var(--border)"
-            borderRadius="12px"
-            fontSize="sm"
-            fontWeight="600"
-            color="var(--fg)"
-            _hover={{ borderColor: 'var(--accent)' }}
-          >
-            {events.map((ev) => (
-              <option key={ev.name} value={ev.name} style={{ background: '#0B1C2A', color: '#fff' }}>
-                {ev.name}
+          <Flex justify="space-between" align="center" mb="6px">
+            <FormLabel m={0} fontSize="xs" fontWeight="700" color="var(--muted)" textTransform="uppercase">
+              Select Event to Configure
+            </FormLabel>
+            {isCustomMode && (
+              <Button
+                variant="ghost"
+                size="xs"
+                color="var(--accent)"
+                fontSize="11px"
+                h="auto"
+                p="2px 6px"
+                leftIcon={<ArrowLeft size={12} />}
+                onClick={() => {
+                  setIsCustomMode(false);
+                  if (availableEventNames.length > 0) {
+                    setTargetEvent(availableEventNames[0]);
+                  }
+                }}
+              >
+                Choose from list
+              </Button>
+            )}
+          </Flex>
+
+          {!isCustomMode ? (
+            <Select
+              value={targetEvent}
+              onChange={(e) => handleSelectEvent(e.target.value)}
+              bg="var(--surface-2)"
+              borderColor="var(--border)"
+              borderRadius="12px"
+              fontSize="sm"
+              fontWeight="600"
+              color="var(--fg)"
+              _hover={{ borderColor: 'var(--accent)' }}
+            >
+              {availableEventNames.map((name) => (
+                <option key={name} value={name} style={{ background: '#0B1C2A', color: '#fff' }}>
+                  {name}
+                </option>
+              ))}
+              <option value="__custom__" style={{ background: '#0B1C2A', color: '#6EE7B7', fontWeight: 'bold' }}>
+                + Enter custom event name...
               </option>
-            ))}
-          </Select>
+            </Select>
+          ) : (
+            <Input
+              value={customEventName}
+              onChange={(e) => {
+                setCustomEventName(e.target.value);
+                setTargetEvent(e.target.value.trim());
+              }}
+              placeholder="Type event name (e.g. Rift CTF, Hackathon)..."
+              bg="var(--surface-2)"
+              borderColor="var(--accent)"
+              borderRadius="12px"
+              fontSize="sm"
+              fontWeight="600"
+              color="var(--fg)"
+              autoFocus
+            />
+          )}
         </FormControl>
 
         {/* Quick Presets */}
@@ -252,7 +365,7 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
             _focus={{ borderColor: 'var(--accent)', boxShadow: '0 0 10px var(--accent-soft)' }}
           />
           <Text fontSize="11px" color="var(--subtle)" mt="4px">
-            The hint text shown inside the search box on {targetEvent || 'this event'}&apos;s leaderboard.
+            The hint text shown inside the search box on {currentDisplayEvent || 'this event'}&apos;s leaderboard.
           </Text>
         </FormControl>
 
@@ -336,12 +449,12 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
           py="10px"
           leftIcon={<Check size={14} />}
           isLoading={isSaving}
+          isDisabled={!currentDisplayEvent}
           onClick={handleSave}
         >
-          Save Configuration for &quot;{targetEvent}&quot;
+          Save Configuration for &quot;{currentDisplayEvent || '...'}&quot;
         </Button>
       </Flex>
     </Box>
   );
 }
-
