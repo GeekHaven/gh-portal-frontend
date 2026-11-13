@@ -139,7 +139,6 @@ export default function EventName() {
         addEvent(ev?.name);
       }
     }
-    addEvent('Opencode');
 
     return list;
   }, [eventData, eventLabel]);

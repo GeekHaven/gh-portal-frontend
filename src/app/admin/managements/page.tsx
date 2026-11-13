@@ -1250,7 +1250,7 @@ ON DUPLICATE KEY UPDATE
             </Badge>
             <Button
               as={Link}
-              href="/user/rplace"
+              href="/user/canvas"
               target="_blank"
               size="sm"
               variant="outline"
