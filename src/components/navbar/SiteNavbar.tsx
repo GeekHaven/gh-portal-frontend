@@ -30,7 +30,7 @@ const navigation = [
   { label: 'Events', href: '/user/events' },
   { label: 'Leaderboard', href: '/user/leaderboard/Opencode' },
   { label: 'Geekstore', href: '/user/geekstore' },
-  { label: 'Canvas', href: '/user/rplace' },
+  { label: 'Canvas', href: '/user/canvas' },
   { label: 'Winners', href: '/user/winners' },
   { label: 'Milestones', href: '/user/milestones' },
   { label: 'Repositories', href: '/user/repos' },
@@ -70,7 +70,11 @@ export default function SiteNavbar() {
     if (item.href === '/user/leaderboard/Opencode' && !features.showLeaderboard)
       return false;
     if (item.href === '/user/repos' && !features.showRepositories) return false;
-    if (item.href === '/user/rplace' && !features.showRPlace) return false;
+    if (
+      (item.href === '/user/canvas' || item.href === '/user/rplace') &&
+      !features.showRPlace
+    )
+      return false;
     if (item.href === '/user/geekstore' && !features.showGeekstore) return false;
     return true;
   });
