@@ -370,7 +370,8 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
             }
 
             if (data.type === 'ERROR') {
-              if (data.error === 'RATE_LIMITED') {
+              const errCode = typeof data.error === 'string' ? data.error.toUpperCase() : '';
+              if (errCode === 'RATE_LIMITED') {
                 setRemainingPixels(0);
                 if (typeof data.ttl === 'number') {
                   setCooldown(Math.max(0, data.ttl));
@@ -384,6 +385,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
                   isClosable: true,
                 });
               }
+              return;
             }
           } catch (parseError) {
             console.error('Error parsing WebSocket message:', parseError);
