@@ -119,7 +119,7 @@ export default function RPlaceCanvasPage() {
       {/* ─── 1. HEADER ─── */}
       <PageHeading
         eyebrow="COMMUNITY CANVAS · OPENCODE 2026"
-        title="R/Place Canvas"
+        title="OpenCode Canvas"
         description="Every contribution leaves its mark. Place pixels directly on the live community canvas below, collaborate with other contributors, and use your OpenCode PR points to unlock faster cooldowns and bigger pixel bursts."
         badge={
           <HStack
