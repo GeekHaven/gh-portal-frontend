@@ -149,7 +149,8 @@ export default function ReposPage() {
       if (!name) return;
       const clean = normalizeEventName(name);
       const key = clean.toLowerCase();
-      if (!key || seen.has(key)) return;
+      if (!key.includes('opencode')) return;
+      if (seen.has(key)) return;
       seen.add(key);
       list.push(clean);
     };
@@ -176,9 +177,13 @@ export default function ReposPage() {
   const defaultEvent = useMemo(() => {
     if (typeof window !== 'undefined') {
       const urlParam = new URLSearchParams(window.location.search).get('event');
-      if (urlParam) return normalizeEventName(urlParam);
+      if (urlParam && urlParam.toLowerCase().includes('opencode')) {
+        return normalizeEventName(urlParam);
+      }
     }
-    const flagship = eventData?.data?.find((e: any) => e.isFlagship)?.name;
+    const flagship = eventData?.data?.find(
+      (e: any) => e.isFlagship && e.name?.toLowerCase().includes('opencode')
+    )?.name;
     return (
       (flagship && normalizeEventName(flagship)) ||
       (process.env.NEXT_PUBLIC_EVENT_NAME && normalizeEventName(process.env.NEXT_PUBLIC_EVENT_NAME)) ||
@@ -192,7 +197,7 @@ export default function ReposPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParam = new URLSearchParams(window.location.search).get('event');
-      if (urlParam) {
+      if (urlParam && urlParam.toLowerCase().includes('opencode')) {
         setSelectedEvent(normalizeEventName(urlParam));
       }
     }
