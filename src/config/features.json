@@ -4,5 +4,6 @@
   "showLeaderboard": true,
   "showRepositories": true,
   "showRPlace": true,
-  "flagshipEvent": "Rift CTF"
+  "flagshipEvent": "Rift CTF",
+  "leaderboardConfigs": {}
 }
