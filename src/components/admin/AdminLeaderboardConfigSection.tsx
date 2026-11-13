@@ -98,27 +98,27 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
     }
   };
 
-  const applyPreset = (type: 'opencode' | 'ctf' | 'minimal') => {
-    if (type === 'opencode') {
+  const applyPreset = (type: 'all' | 'search_only' | 'default') => {
+    if (type === 'all') {
       setSearchPlaceholder('Search name or GitHub ID...');
       setShowCollegeFilter(true);
       setShowFirstYearFilter(true);
       setShowEventSelector(true);
-    } else if (type === 'ctf') {
-      setSearchPlaceholder('Search player or team name...');
+    } else if (type === 'search_only') {
+      setSearchPlaceholder(`Search ${targetEvent || 'participants'}...`);
       setShowCollegeFilter(false);
       setShowFirstYearFilter(false);
       setShowEventSelector(true);
-    } else if (type === 'minimal') {
-      setSearchPlaceholder(`Search ${targetEvent || 'event'} participants...`);
-      setShowCollegeFilter(false);
-      setShowFirstYearFilter(false);
+    } else if (type === 'default') {
+      setSearchPlaceholder('Search name or GitHub ID...');
+      setShowCollegeFilter(true);
+      setShowFirstYearFilter(true);
       setShowEventSelector(true);
     }
 
     toast({
-      title: `${type.toUpperCase()} Preset Applied`,
-      description: 'Values updated. Click "Save Configuration" to apply.',
+      title: 'Template Applied',
+      description: 'Review the settings and click "Save Configuration" to apply.',
       status: 'info',
       duration: 2500,
       isClosable: true,
@@ -201,9 +201,9 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
               borderColor="var(--border)"
               color="var(--fg)"
               _hover={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}
-              onClick={() => applyPreset('opencode')}
+              onClick={() => applyPreset('all')}
             >
-              OpenCode (All On)
+              All Filters On
             </Button>
             <Button
               size="xs"
@@ -211,9 +211,9 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
               borderColor="var(--border)"
               color="var(--fg)"
               _hover={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}
-              onClick={() => applyPreset('ctf')}
+              onClick={() => applyPreset('search_only')}
             >
-              CTF / Hackathon
+              Search Only (No Filters)
             </Button>
             <Button
               size="xs"
@@ -221,9 +221,9 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
               borderColor="var(--border)"
               color="var(--fg)"
               _hover={{ borderColor: 'var(--accent)', color: 'var(--accent)' }}
-              onClick={() => applyPreset('minimal')}
+              onClick={() => applyPreset('default')}
             >
-              Minimal
+              Reset to Default
             </Button>
           </HStack>
         </FormControl>
@@ -344,3 +344,4 @@ export default function AdminLeaderboardConfigSection({ events }: Props) {
     </Box>
   );
 }
+

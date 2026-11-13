@@ -10,71 +10,29 @@ export interface LeaderboardEventConfig {
 }
 
 /**
- * Event-specific configuration mapping.
- * Keys are normalized lowercase keywords or exact event names.
+ * Standard default fallback configuration when an event has not yet
+ * been customized by an admin in the Admin Management panel.
+ *
+ * NOTE: There are ZERO hardcoded event-specific rules here.
+ * All event customizations (placeholder, college toggle, 1st-year toggle)
+ * are controlled dynamically by admins in /admin/managements.
  */
-export const EVENT_LEADERBOARD_CONFIGS: Record<string, Partial<LeaderboardEventConfig>> = {
-  // OpenCode events (flagship multi-college open-source sprint)
-  opencode: {
-    searchPlaceholder: 'Search name or GitHub ID...',
-    showCollegeFilter: true,
-    showFirstYearFilter: true,
-    showEventSelector: true,
-  },
-  // CTF / Security challenges (team-based or hacker aliases, no 1st-year/college distinction)
-  'rift ctf': {
-    searchPlaceholder: 'Search player or team name...',
-    showCollegeFilter: false,
-    showFirstYearFilter: false,
-    showEventSelector: true,
-  },
-  ctf: {
-    searchPlaceholder: 'Search player or team name...',
-    showCollegeFilter: false,
-    showFirstYearFilter: false,
-    showEventSelector: true,
-  },
-  // Competitive Programming / Algorithms
-  cp: {
-    searchPlaceholder: 'Search handle or username...',
-    showCollegeFilter: false,
-    showFirstYearFilter: false,
-    showEventSelector: true,
-  },
-  // Hackathons (project/team search)
-  hackathon: {
-    searchPlaceholder: 'Search team or project name...',
-    showCollegeFilter: true,
-    showFirstYearFilter: false,
-    showEventSelector: true,
-  },
+export const DEFAULT_LEADERBOARD_CONFIG: LeaderboardEventConfig = {
+  searchPlaceholder: 'Search name or GitHub ID...',
+  showCollegeFilter: true,
+  showFirstYearFilter: true,
+  showEventSelector: true,
 };
 
 /**
- * Resolves the configuration for a given event name.
- * Falls back to sensible defaults for unknown or newly created events.
+ * Resolves default configuration for an event when no admin configuration exists.
  */
 export function getLeaderboardEventConfig(eventName?: string): LeaderboardEventConfig {
-  const normalized = (eventName || '').trim().toLowerCase();
-
-  for (const [key, config] of Object.entries(EVENT_LEADERBOARD_CONFIGS)) {
-    if (normalized.includes(key)) {
-      return {
-        searchPlaceholder: config.searchPlaceholder || 'Search participant...',
-        showCollegeFilter: config.showCollegeFilter ?? true,
-        showFirstYearFilter: config.showFirstYearFilter ?? false,
-        showEventSelector: config.showEventSelector ?? true,
-      };
-    }
-  }
-
-  // Default fallback for any other events:
   const eventLabel = eventName?.trim();
   return {
-    searchPlaceholder: eventLabel ? `Search ${eventLabel} participants...` : 'Search participants...',
-    showCollegeFilter: false,
-    showFirstYearFilter: false,
+    searchPlaceholder: eventLabel ? `Search ${eventLabel} participants...` : 'Search name or GitHub ID...',
+    showCollegeFilter: true,
+    showFirstYearFilter: true,
     showEventSelector: true,
   };
 }
-
