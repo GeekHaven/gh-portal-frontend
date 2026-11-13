@@ -4,7 +4,7 @@ import OpenCodeExperience from '../opencode/OpenCodeExperience';
 import LandingContent from './LandingContent';
 
 const navigation = [
-  { label: 'Leaderboard', href: '/user/leaderboard/Opencode' },
+  { label: 'Leaderboard', href: "/user/leaderboard/Opencode'26" },
   { label: 'FAQ', href: '/faq' },
 ];
 
@@ -35,7 +35,7 @@ export default function LandingPage() {
         id="opencode"
         title="GEEKHAVEN"
         ctaLabel="Explore the leaderboard"
-        ctaHref="/user/leaderboard/Opencode"
+        ctaHref="/user/leaderboard/Opencode'26"
         skipTargetId="opencode-content"
         quality="auto"
         navigation={navigation}

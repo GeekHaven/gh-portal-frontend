@@ -135,16 +135,45 @@ export default function EventName() {
       list.push(name.trim());
     };
 
-    if (eventLabel) addEvent(eventLabel);
     if (eventData?.data && Array.isArray(eventData.data)) {
       for (const ev of eventData.data) {
         addEvent(ev?.name);
       }
     }
-    addEvent('Opencode');
+
+    // Only include eventLabel if DB is empty or if it exists in DB
+    if (list.length === 0 && eventLabel) {
+      addEvent(eventLabel);
+    } else if (eventLabel && !seen.has(eventLabel.trim().toLowerCase())) {
+      // If event exists in DB, it's already in the list.
+    }
 
     return list;
   }, [eventData, eventLabel]);
+
+  // If visiting outdated '/user/leaderboard/Opencode' and it does not exist in DB,
+  // gracefully redirect to the latest 'Opencode\'26' (or first available event)
+  useEffect(() => {
+    if (
+      eventData?.data &&
+      Array.isArray(eventData.data) &&
+      eventData.data.length > 0 &&
+      eventLabel
+    ) {
+      const exists = eventData.data.some(
+        (e: any) => e?.name?.toLowerCase() === eventLabel.toLowerCase(),
+      );
+      if (!exists && eventLabel.toLowerCase() === 'opencode') {
+        const target =
+          eventData.data.find((e: any) => e?.name?.toLowerCase() === "opencode'26")?.name ||
+          eventData.data.find((e: any) => e?.name?.toLowerCase().includes('opencode'))?.name ||
+          eventData.data[0]?.name;
+        if (target) {
+          router.replace(`/user/leaderboard/${encodeURIComponent(target)}`);
+        }
+      }
+    }
+  }, [eventData, eventLabel, router]);
 
   const handleSelectEvent = useCallback(
     (name: string) => {

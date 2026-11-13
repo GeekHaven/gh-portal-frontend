@@ -25,7 +25,7 @@ function cn(...inputs: (string | boolean | undefined | null)[]): string {
 const navigation = [
   { label: 'Home', href: '/' },
   { label: 'Events', href: '/user/events' },
-  { label: 'Leaderboard', href: '/user/leaderboard/Opencode' },
+  { label: 'Leaderboard', href: "/user/leaderboard/Opencode'26" },
   { label: 'Geekstore', href: '/user/geekstore' },
   { label: 'RPlace Canvas', href: '/user/rplace' },
   { label: 'Winners', href: '/user/winners' },
@@ -54,7 +54,7 @@ export default function SiteNavbar() {
   const activeNavigation = navigation.filter((item) => {
     if (item.href === '/user/winners' && !features.showWinners) return false;
     if (item.href === '/user/milestones' && !features.showMilestones) return false;
-    if (item.href === '/user/leaderboard/Opencode' && !features.showLeaderboard) return false;
+    if (item.href.includes('/user/leaderboard') && !features.showLeaderboard) return false;
     if (item.href === '/user/repos' && !features.showRepositories) return false;
     if (item.href === '/user/rplace' && !features.showRPlace) return false;
     return true;

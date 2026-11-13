@@ -289,7 +289,7 @@ export default function RPlaceCanvasPage() {
           gap="14px"
         >
           <Link
-            href="/user/leaderboard/Opencode"
+            href="/user/leaderboard/Opencode'26"
             className="oc-button oc-button-secondary"
             aria-label="View Leaderboard"
           >
