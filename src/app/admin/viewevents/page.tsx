@@ -4,12 +4,13 @@ import { Box, Button, SimpleGrid, useToast, Text, Flex, Badge, Icon } from '@cha
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { CalendarDays, Star } from 'lucide-react';
+import { CalendarDays, Star, Pencil } from 'lucide-react';
 import NFT from '../../../components/card/NFT';
 import { RingLoader } from 'react-spinners';
 import { useFeatures } from 'contexts/FeaturesContext';
 import { resolveImageUrl, getEventCoverImage, getEventLogoImage } from 'utils/eventImages';
-import { updateFlagshipEvent } from 'api/admin/admin';
+import { getApiBase } from 'utils/apiBase';
+import EditEventModal from 'components/modals/EditEventModal';
 
 // 1. Define Types
 interface EventItem {
@@ -31,6 +32,7 @@ export default function Viewevents() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [updatingEventName, setUpdatingEventName] = useState<string | null>(null);
+  const [editingEventName, setEditingEventName] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
   const { features, setFlagshipEvent } = useFeatures();
@@ -74,7 +76,7 @@ export default function Viewevents() {
     // Fetch Data
     const fetchData = async () => {
       try {
-        const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000').replace(/\/+$/, '');
+        const baseUrl = getApiBase();
         const response = await axios.get(
           `${baseUrl}/api/v1/events/`
         );
@@ -96,7 +98,7 @@ export default function Viewevents() {
     const token = localStorage.getItem('token');
 
     try {
-      const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000').replace(/\/+$/, '');
+      const baseUrl = getApiBase();
       await axios.delete(
         `${baseUrl}/api/v1/admin/delete/${encodeURIComponent(eventName)}`,
         {
@@ -117,7 +119,6 @@ export default function Viewevents() {
   const handleSetFlagship = async (eventName: string) => {
     setUpdatingEventName(eventName);
     try {
-      await updateFlagshipEvent(eventName, true);
       await setFlagshipEvent(eventName);
       setEvents((prev) =>
         prev.map((e) => ({
@@ -149,7 +150,6 @@ export default function Viewevents() {
   const handleRemoveFlagship = async (eventName: string) => {
     setUpdatingEventName(eventName);
     try {
-      await updateFlagshipEvent(eventName, false);
       await setFlagshipEvent(null);
       setEvents((prev) =>
         prev.map((e) => (e.name.toLowerCase() === eventName.toLowerCase() ? { ...e, isFlagship: false } : e))
@@ -173,6 +173,17 @@ export default function Viewevents() {
     } finally {
       setUpdatingEventName(null);
     }
+  };
+
+  const handleEditSuccess = (updatedEvent: any) => {
+    if (!updatedEvent) return;
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.name.toLowerCase() === editingEventName?.toLowerCase()
+          ? { ...e, ...updatedEvent }
+          : e
+      )
+    );
   };
 
   if (!isMounted) return null;
@@ -270,6 +281,15 @@ export default function Viewevents() {
                   </Button>
                 )}
                 <Button
+                  colorScheme="purple"
+                  size="sm"
+                  variant="outline"
+                  leftIcon={<Icon as={Pencil} />}
+                  onClick={() => setEditingEventName(item.name)}
+                >
+                  Edit
+                </Button>
+                <Button
                   colorScheme="red"
                   size="sm"
                   variant="ghost"
@@ -282,6 +302,15 @@ export default function Viewevents() {
           );
         })}
       </SimpleGrid>
+
+      {editingEventName && (
+        <EditEventModal
+          isOpen={!!editingEventName}
+          onClose={() => setEditingEventName(null)}
+          eventName={editingEventName}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </Box>
   );
 }

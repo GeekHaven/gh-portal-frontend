@@ -1,6 +1,8 @@
+import { getApiBase, normalizeEventName } from 'utils/apiBase';
+
 export async function FetchedEvents() {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/events/`,
+    `${getApiBase()}/api/v1/events/`,
     {
       method: 'GET',
       headers: {
@@ -27,9 +29,10 @@ export async function getUserIssueDetails(
   }
 
   const token = localStorage.getItem('token');
+  const cleanEventName = normalizeEventName(eventName);
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/participant/${githubId}/${eventName}/issues`,
+    `${getApiBase()}/api/v1/participant/${encodeURIComponent(githubId)}/${encodeURIComponent(cleanEventName)}/issues`,
     {
       method: 'GET',
       headers: {
@@ -59,9 +62,10 @@ export async function getUserIssueDetails(
 }
 
 export async function FetchedRepos(eventName: string) {
+  const cleanEventName = normalizeEventName(eventName);
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/events/${eventName}/repos`,
+    `${getApiBase()}/api/v1/events/${encodeURIComponent(cleanEventName)}/repos`,
     {
       method: 'GET',
       headers: {
@@ -78,3 +82,23 @@ export async function FetchedRepos(eventName: string) {
   return reposData;
 }
 
+export async function FetchedEventDetails(eventName: string) {
+  const cleanEventName = normalizeEventName(eventName);
+
+  const response = await fetch(
+    `${getApiBase()}/api/v1/events/${encodeURIComponent(cleanEventName)}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch event details for ${cleanEventName}`);
+  }
+
+  const result = await response.json();
+  return result?.data || result;
+}

@@ -33,6 +33,8 @@ type Event = {
   coverImageURLs?: string[];
   image?: string;
   imageUrl?: string;
+  track?: string;
+  category?: string;
   [key: string]: any;
 };
 
@@ -65,18 +67,93 @@ function getEventStatus(startDate?: string, endDate?: string) {
   return { label: 'Live Now', type: 'live' };
 }
 
-function getEventTrack(name: string, description?: string): string {
-  const text = `${name} ${description || ''}`.toLowerCase();
-  if (text.includes('ai') || text.includes('vision') || text.includes('kuroshio')) return 'AI / ML Sprint';
-  if (text.includes('hack') || text.includes('north')) return 'Hackathon';
-  if (text.includes('web3') || text.includes('contract') || text.includes('solana')) return 'Web3 & Governance';
-  if (text.includes('ctf') || text.includes('security') || text.includes('cybershield')) return 'Security & CTF';
-  if (text.includes('mobile') || text.includes('flutter')) return 'Mobile Dev';
-  if (text.includes('game') || text.includes('forge')) return 'Game Dev';
-  if (text.includes('bytecamp') || text.includes('algo')) return 'Systems & Algorithms';
-  if (text.includes('cloud') || text.includes('kubernetes')) return 'Cloud & DevOps';
-  if (text.includes('design')) return 'Design & UI/UX';
-  return 'Open Source Sprint';
+function getEventTrack(name?: string, description?: string, explicitTrack?: string): string {
+  if (explicitTrack && explicitTrack.trim()) return explicitTrack.trim();
+
+  const text = `${name || ''} ${description || ''}`.toLowerCase();
+
+  // 1. OpenCode Pre-Events / Challenges (Sketchathon, etc.)
+  if (/\b(sketchathon|pre-event|pre event|prelude)\b/i.test(text)) {
+    return 'OpenCode Pre-Event';
+  }
+
+  // 2. Open Source & OpenCode (Flagship)
+  if (/\b(opencode|open code|inauguration|inaugration|open source|opensource|\bfoss\b|gsoc|hacktoberfest)\b/i.test(text)) {
+    return 'Open Source Sprint';
+  }
+
+  // 3. Gaming & Esports (Clash Royale, SmashKarts, FIFA, etc.)
+  if (/\b(clash royale|clash|smashkarts|smash karts|smash-karts|fifa|esports|valorant|bgmi|chess)\b/i.test(text)) {
+    return 'Gaming & Esports';
+  }
+
+  // 4. Gaming & Trivia (Pokémon Guesser, etc.)
+  if (/\b(pokemon|pok\u00e9mon|guesser|trivia|quiz)\b/i.test(text)) {
+    return 'Gaming & Trivia';
+  }
+
+  // 5. Web & Frontend (CSS Battle, etc.)
+  if (/\b(css battle|cssbattle|css|frontend|front-end|web dev|webdev|web development|html|webd)\b/i.test(text)) {
+    return 'Web & Frontend';
+  }
+
+  // 6. Competitive Programming (CodeGuerra, etc.)
+  if (/\b(codeguerra|code guerra|guerra|competitive programming|\bcp\b|dsa|algo|algorithm|algorithms|bytecamp|leetcode|codeforces)\b/i.test(text)) {
+    return 'Competitive Programming';
+  }
+
+  // 7. Design & UI/UX (The Sticker Jam, Brand Rebrand, etc.)
+  if (/\b(the sticker jam|sticker jam|sticker|brand rebrand|rebrand|design|ui\/ux|\bui\b|\bux\b|figma|graphic)\b/i.test(text)) {
+    return 'Design & UI/UX';
+  }
+
+  // 7. Data Science & Analytics (Data Blitz, etc.)
+  if (/\b(data blitz|datablitz|data science|analytics|big data|data analysis|kaggle)\b/i.test(text)) {
+    return 'Data Science & Analytics';
+  }
+
+  // 8. AI & Machine Learning (Real or AI, etc.)
+  if (/\b(real or ai|artificial intelligence|\bai\b|\bml\b|machine learning|deep learning|vision|kuroshio|genai|llm|deepfake|nlp)\b/i.test(text)) {
+    return 'AI & Machine Learning';
+  }
+
+  // 9. Mobile & App Dev (App Dev, etc.)
+  if (/\b(app dev|appdev|mobile dev|mobile|flutter|react native|android|ios|swift|kotlin)\b/i.test(text)) {
+    return 'App Development';
+  }
+
+  // 10. Security & CTF
+  if (/\b(ctf|security|cybershield|infosec|cyber)\b/i.test(text)) {
+    return 'Security & CTF';
+  }
+
+  // 11. Web3 & Blockchain
+  if (/\b(web3|contract|solana|blockchain|ethereum|crypto|solidity)\b/i.test(text)) {
+    return 'Web3 & Governance';
+  }
+
+  // 12. Cloud & DevOps
+  if (/\b(cloud|kubernetes|docker|devops|aws|gcp|azure)\b/i.test(text)) {
+    return 'Cloud & DevOps';
+  }
+
+  // 13. Hackathon
+  if (/\b(hackathon|\bhack\b|north|devpost)\b/i.test(text)) {
+    return 'Hackathon';
+  }
+
+  // 14. Other game titles / game dev
+  if (/\b(game dev|\bgame\b|\bgames\b|forge)\b/i.test(text)) {
+    return 'Gaming & Esports';
+  }
+
+  // 15. Other open source / pull requests
+  if (/\b(sprint|contribution|contribute|pr|github|pull request)\b/i.test(text)) {
+    return 'Open Source Sprint';
+  }
+
+  // Default fallback for general/unclassified community events
+  return 'Community Event';
 }
 
 function EventCardImage({
@@ -131,7 +208,7 @@ function FlagshipCard({
     }
   }, [event.name]);
 
-  const track = getEventTrack(event.name, event.description);
+  const track = getEventTrack(event.name, event.description, event.track || event.category);
   const status = getEventStatus(event.startDate, event.endDate);
   const dates = formatEventDates(event.startDate, event.endDate);
 
@@ -145,14 +222,14 @@ function FlagshipCard({
   return (
     <div className="mb-6 sm:mb-8">
       <div className="flex items-center gap-2 mb-2.5">
-        <span className="w-2 h-2 rounded-full bg-[var(--secondary)] animate-ping" />
-        <span className="text-xs font-bold tracking-widest uppercase text-[var(--secondary)] font-mono">
+        <span className="w-2 h-2 rounded-full bg-[var(--secondary)]" />
+        <span className="text-xs font-semibold tracking-wider uppercase text-[var(--secondary)] font-mono">
           Featured Flagship Arena
         </span>
       </div>
 
       <article
-        className="group relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl"
+        className="group relative flex flex-col rounded-2xl sm:rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-xl"
         style={{
           background: 'var(--surface)',
           border: '1px solid var(--border)',
@@ -295,16 +372,15 @@ export default function EventCollection({
   const scenes = ['kyoto-evening', 'kyoto-garden', 'kyoto-torii'];
   const Icon = leaderboard ? Trophy : CalendarDays;
 
-  // Resolve flagship event: database isFlagship takes precedence, fallback to features config
+  // Resolve flagship event: authoritative features config takes precedence, fallback to database isFlagship
   const flagship = useMemo(() => {
-    const dbFlagship = events.find((e) => e.isFlagship === true);
-    if (dbFlagship) return dbFlagship;
-    if (!features?.flagshipEvent) return null;
-    return (
-      events.find(
+    if (features?.flagshipEvent) {
+      const match = events.find(
         (e) => e.name?.toLowerCase() === features.flagshipEvent?.toLowerCase(),
-      ) || null
-    );
+      );
+      if (match) return match;
+    }
+    return events.find((e) => e.isFlagship === true) || null;
   }, [events, features?.flagshipEvent]);
 
   // Filter out the flagship event so it isn't duplicated in the grid
@@ -384,7 +460,7 @@ export default function EventCollection({
                 }
               })();
 
-              const track = getEventTrack(event.name, event.description);
+              const track = getEventTrack(event.name, event.description, event.track || event.category);
               const status = getEventStatus(event.startDate, event.endDate);
               const dateRange = formatEventDates(event.startDate, event.endDate);
               const isLive = status.type === 'live';

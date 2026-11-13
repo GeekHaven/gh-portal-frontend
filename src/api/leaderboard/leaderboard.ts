@@ -1,6 +1,9 @@
 import { registerMentors } from 'constants/Maintainers';
+import { getApiBase, normalizeEventName } from 'utils/apiBase';
 
-const LEADERBOARD_API_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/events/`;
+function getLeaderboardApiUrl() {
+  return `${getApiBase()}/api/v1/events/`;
+}
 export type LeaderboardEntry = {
 	position: number | string;
 	name: string;
@@ -18,9 +21,10 @@ export type LeaderboardEntry = {
 export type RowObj = LeaderboardEntry;
 
 export const FetchedLeaderboard = async (eventName: string): Promise<LeaderboardEntry[]> => {
+  const cleanEventName = normalizeEventName(eventName);
 
   try {
-    const response = await fetch(`${LEADERBOARD_API_URL}${eventName}/leaderboard`);
+    const response = await fetch(`${getLeaderboardApiUrl()}${encodeURIComponent(cleanEventName)}/leaderboard`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch leaderboard data: ${response.statusText}`);

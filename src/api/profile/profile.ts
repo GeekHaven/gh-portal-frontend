@@ -1,4 +1,5 @@
 import { FetchedLeaderboard } from 'api/leaderboard/leaderboard';
+import { getApiBase } from 'utils/apiBase';
 
 export async function fetchLoggedInBasicDetails() {
   if (typeof window === 'undefined') return null;
@@ -11,7 +12,7 @@ export async function fetchLoggedInBasicDetails() {
   } else {
     const eventName = process.env.NEXT_PUBLIC_EVENT_NAME || 'Opencode';
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/participant/?eventName=${encodeURIComponent(eventName)}`,
+      `${getApiBase()}/api/v1/participant/?eventName=${encodeURIComponent(eventName)}`,
       {
         method: 'GET',
         headers: {
@@ -31,32 +32,62 @@ export async function fetchLoggedInBasicDetails() {
 }
 
 export async function sendRegData(formData: any) {
-  try {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/register`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      },
-    );
-
-    if (response.status === 200) {
-      // console.log('Success!');
-    } else {
-      console.error('Registration failed:', response.statusText);
+  let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  if (!token && typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    token = params.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
     }
-
-    const data = await response.json();
-    // console.log(data);
-    return data;
-  } catch (error: any) {
-    console.error('Error sending registration data:', error.message);
   }
+
+  if (token) {
+    token = token.trim();
+  }
+
+  // Ensure avatarUrl is never missing (Prisma User model requires avatarUrl: String)
+  const avatarUrl =
+    formData.avatarUrl?.trim() ||
+    (formData.githubId ? `https://github.com/${formData.githubId}.png` : 'https://github.com/identicons/user.png');
+
+  const payload = {
+    ...formData,
+    avatarUrl,
+    graduationYear: Number(formData.graduationYear),
+  };
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBase()}/api/v1/register`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+  } catch (netErr: any) {
+    console.error('Registration network error:', netErr);
+    throw new Error(`Network error while contacting server (${netErr?.message || 'CORS or offline'}). Please check your connection.`);
+  }
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const errorMsg = data?.error || data?.message || `Registration failed (${response.status}: ${response.statusText})`;
+    console.error('Registration failed:', errorMsg);
+    const error = new Error(errorMsg) as Error & { fields?: Record<string, string>; status?: number };
+    error.fields = data?.fields;
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
 }
 
 export async function getUserProfileByName(profileName: string) {
@@ -64,7 +95,7 @@ export async function getUserProfileByName(profileName: string) {
   const eventName = process.env.NEXT_PUBLIC_EVENT_NAME || 'Opencode';
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/participant/${encodeURIComponent(profileName)}/${encodeURIComponent(eventName)}`,
+    `${getApiBase()}/api/v1/participant/${encodeURIComponent(profileName)}/${encodeURIComponent(eventName)}`,
     {
       method: 'GET',
       headers: {
@@ -105,7 +136,7 @@ export async function updateUserProfile(updatedData: ProfileUpdatePayload) {
   };
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/participant/update`,
+    `${getApiBase()}/api/v1/participant/update`,
     {
       method: 'PUT',
       headers: {
@@ -158,13 +189,18 @@ export async function fetchColleges(param?: string | { queryKey?: unknown }): Pr
       ? param
       : process.env.NEXT_PUBLIC_EVENT_NAME || "OPENCODE'26";
 
+  const isIIITAllahabad = (col: string) => {
+    const s = col.toLowerCase().replace(/[^a-z]/g, '');
+    return s.includes('allahabad') && (s.includes('iiit') || s.includes('informationtechnology'));
+  };
+
   // 1. Fetch registered colleges from the active event leaderboard
   try {
     const leadData = await FetchedLeaderboard(targetEvent);
     if (leadData && Array.isArray(leadData)) {
       const colleges = leadData
         .map((item) => (item.collegeName ?? '')?.trim())
-        .filter(Boolean);
+        .filter((c) => Boolean(c) && !isIIITAllahabad(c));
       const uniqueColleges = [...new Set(colleges)].sort();
       if (uniqueColleges.length > 0) {
         return uniqueColleges;
@@ -174,24 +210,10 @@ export async function fetchColleges(param?: string | { queryKey?: unknown }): Pr
     console.error('Error fetching colleges from event leaderboard:', error);
   }
 
-  // 2. Fallback to /api/v1/colleges if available
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/colleges`);
-    if (response.ok) {
-      const data = await response.json();
-      if (Array.isArray(data.data) && data.data.length > 0) {
-        return [...new Set((data.data as string[]).map((c) => c?.trim()).filter(Boolean))].sort();
-      }
-    }
-  } catch {
-    // ignore backend colleges endpoint error
-  }
-
-  // 3. Fallback list of known colleges when offline or event is newly initialized
+  // 2. Fallback list of known colleges when offline or event is newly initialized
   return [
     'Birla Institute of Technology and Science, Pilani',
     'Delhi Technological University',
-    'Indian Institute of Information Technology, Allahabad',
     'Indian Institute of Information Technology, Hyderabad',
     'Indian Institute of Information Technology, Lucknow',
     'Indian Institute of Technology BHU',

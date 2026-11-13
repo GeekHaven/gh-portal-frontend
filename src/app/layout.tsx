@@ -49,27 +49,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: [{ media: '(prefers-color-scheme: dark)', color: '#07131F' }, { media: '(prefers-color-scheme: light)', color: '#F0F4F3' }],
+  themeColor: '#07131F',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Shippori+Mincho:wght@500;600&display=swap"
-        />
-        <link
-          rel="preload"
-          href="/videos/beginning.webm"
-          as="video"
-          type="video/webm"
-        />
-      </head>
-      <body id="root"><AppWrappers>{children}</AppWrappers></body>
+      <body suppressHydrationWarning><AppWrappers>{children}</AppWrappers></body>
     </html>
   );
 }

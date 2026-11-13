@@ -64,13 +64,13 @@ import {
   removeMentor,
   fetchMentors,
   uploadEventLeaderboard,
-  updateFlagshipEvent,
   uploadRPlaceBoardSnapshot,
   MentorUser,
 } from 'api/admin/admin';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  EXPECTED_SNAPSHOT_BYTES,
   encodeImageToSnapshot,
   renderSnapshotToCanvas,
 } from 'utils/rplaceProtocol';
@@ -83,7 +83,7 @@ export default function ManagementPage() {
   const router = useRouter();
   const toast = useToast();
   const [isMounted, setIsMounted] = useState(false);
-  const { features, toggleFeature, setFlagshipEvent } = useFeatures();
+  const { features, toggleFeature, setFlagshipEvent, isLoading: isFeaturesLoading } = useFeatures();
   
   const textColor = 'var(--fg)';
   const cardBg = 'var(--surface)';
@@ -127,7 +127,6 @@ export default function ManagementPage() {
     }
     setIsUpdatingFlagship(true);
     try {
-      await updateFlagshipEvent(selectedFlagship, true);
       await setFlagshipEvent(selectedFlagship);
       toast({
         title: 'Flagship Event Updated',
@@ -153,9 +152,6 @@ export default function ManagementPage() {
   const handleRemoveFlagship = async () => {
     setIsUpdatingFlagship(true);
     try {
-      if (features.flagshipEvent) {
-        await updateFlagshipEvent(features.flagshipEvent, false);
-      }
       await setFlagshipEvent(null);
       setSelectedFlagship('');
       toast({
@@ -182,7 +178,7 @@ export default function ManagementPage() {
   const [togglingFeature, setTogglingFeature] = useState<string | null>(null);
 
   const handleToggleFeature = async (
-    key: 'showWinners' | 'showMilestones' | 'showRPlace' | 'showRepositories' | 'showLeaderboard',
+    key: 'showWinners' | 'showMilestones' | 'showRPlace' | 'showRepositories' | 'showLeaderboard' | 'showGeekstore',
     val: boolean,
     label: string
   ) => {
@@ -235,13 +231,6 @@ export default function ManagementPage() {
     queryFn: FetchedEvents,
   });
 
-  useEffect(() => {
-    const dbFlagship = eventData?.data?.find((e) => e.isFlagship)?.name;
-    if (dbFlagship && dbFlagship !== features.flagshipEvent) {
-      setFlagshipEvent(dbFlagship);
-      setSelectedFlagship(dbFlagship);
-    }
-  }, [eventData, features.flagshipEvent, setFlagshipEvent]);
 
   // Repos in Selected Event query
   const { data: reposData, refetch: refetchRepos, isLoading: isLoadingRepos } = useQuery({
@@ -520,15 +509,16 @@ export default function ManagementPage() {
     }
   };
 
-  const handleDeleteRepo = async () => {
-    if (!selectedEvent || !deleteRepoName) {
+  const handleDeleteRepo = async (targetRepo?: string) => {
+    const nameToDelete = targetRepo || deleteRepoName;
+    if (!selectedEvent || !nameToDelete) {
       toast({ title: 'Event and Repo Name are required.', status: 'warning', isClosable: true });
       return;
     }
     try {
-      await deleteRepo(selectedEvent, deleteRepoName);
+      await deleteRepo(selectedEvent, nameToDelete);
       toast({ title: 'Repo Deleted!', status: 'success', isClosable: true });
-      setDeleteRepoName('');
+      if (deleteRepoName === nameToDelete) setDeleteRepoName('');
       refetchRepos();
     } catch (error: any) {
       toast({ title: 'Error deleting repo', description: error.message, status: 'error', isClosable: true });
@@ -715,10 +705,10 @@ ON DUPLICATE KEY UPDATE
     try {
       if (file.name.endsWith('.bin') || file.name.endsWith('.dat')) {
         const buffer = await file.arrayBuffer();
-        if (buffer.byteLength !== 300000) {
+        if (buffer.byteLength !== EXPECTED_SNAPSHOT_BYTES) {
           toast({
             title: 'Invalid Binary Snapshot Size',
-            description: `Expected exactly 300,000 bytes (got ${buffer.byteLength.toLocaleString()} bytes).`,
+            description: `Expected exactly ${EXPECTED_SNAPSHOT_BYTES.toLocaleString()} bytes (got ${buffer.byteLength.toLocaleString()} bytes).`,
             status: 'error',
             duration: 4000,
             isClosable: true,
@@ -731,7 +721,7 @@ ON DUPLICATE KEY UPDATE
         setCanvasBufferToUpload(buffer);
         setCanvasPreviewInfo({
           name: file.name,
-          size: `${(buffer.byteLength / 1024).toFixed(1)} KB (Exact 300 KB binary)`,
+          size: `${(buffer.byteLength / 1024).toFixed(1)} KB (Exact ${Math.round(EXPECTED_SNAPSHOT_BYTES / 1024)} KB binary)`,
           type: 'Raw 4-bit Binary Snapshot',
         });
         if (canvasPreviewRef.current) {
@@ -748,7 +738,7 @@ ON DUPLICATE KEY UPDATE
             setCanvasBufferToUpload(packedBuffer);
             setCanvasPreviewInfo({
               name: file.name,
-              size: `${img.naturalWidth}×${img.naturalHeight} px → Quantized to 1000×600 (300 KB)`,
+              size: `${img.naturalWidth}×${img.naturalHeight} px → Quantized to ${CANVAS_WIDTH}×${CANVAS_HEIGHT} (${Math.round(EXPECTED_SNAPSHOT_BYTES / 1024)} KB)`,
               type: '16-Color Quantized Image',
             });
           } catch (err: any) {
@@ -788,12 +778,12 @@ ON DUPLICATE KEY UPDATE
   };
 
   const handleGenerateBlankCanvas = () => {
-    const blank = new ArrayBuffer(300000); // 300,000 zero bytes = color 0 (white)
+    const blank = new ArrayBuffer(EXPECTED_SNAPSHOT_BYTES); // zero bytes = color 0 (white)
     setCanvasBufferToUpload(blank);
     setCanvasSnapshotFile(null);
     setCanvasPreviewInfo({
       name: 'blank-canvas.bin',
-      size: '300.0 KB (All White)',
+      size: `${(EXPECTED_SNAPSHOT_BYTES / 1024).toFixed(1)} KB (All White)`,
       type: 'Reset / Blank Snapshot',
     });
     if (canvasPreviewRef.current) {
@@ -892,7 +882,7 @@ ON DUPLICATE KEY UPDATE
               colorScheme="brand"
               size="lg"
               isChecked={features.showWinners}
-              isDisabled={togglingFeature === 'showWinners'}
+              isDisabled={togglingFeature === 'showWinners' || isFeaturesLoading}
               onChange={(e) => handleToggleFeature('showWinners', e.target.checked, 'Winners')}
             />
           </Flex>
@@ -919,7 +909,7 @@ ON DUPLICATE KEY UPDATE
               colorScheme="brand"
               size="lg"
               isChecked={features.showMilestones}
-              isDisabled={togglingFeature === 'showMilestones'}
+              isDisabled={togglingFeature === 'showMilestones' || isFeaturesLoading}
               onChange={(e) => handleToggleFeature('showMilestones', e.target.checked, 'Milestones')}
             />
           </Flex>
@@ -945,7 +935,7 @@ ON DUPLICATE KEY UPDATE
               colorScheme="brand"
               size="lg"
               isChecked={features.showRPlace}
-              isDisabled={togglingFeature === 'showRPlace'}
+              isDisabled={togglingFeature === 'showRPlace' || isFeaturesLoading}
               onChange={(e) => handleToggleFeature('showRPlace', e.target.checked, 'RPlace')}
             />
           </Flex>
@@ -971,7 +961,7 @@ ON DUPLICATE KEY UPDATE
               colorScheme="brand"
               size="lg"
               isChecked={features.showRepositories}
-              isDisabled={togglingFeature === 'showRepositories'}
+              isDisabled={togglingFeature === 'showRepositories' || isFeaturesLoading}
               onChange={(e) => handleToggleFeature('showRepositories', e.target.checked, 'Repositories')}
             />
           </Flex>
@@ -997,8 +987,35 @@ ON DUPLICATE KEY UPDATE
               colorScheme="brand"
               size="lg"
               isChecked={features.showLeaderboard}
-              isDisabled={togglingFeature === 'showLeaderboard'}
+              isDisabled={togglingFeature === 'showLeaderboard' || isFeaturesLoading}
               onChange={(e) => handleToggleFeature('showLeaderboard', e.target.checked, 'Leaderboard')}
+            />
+          </Flex>
+
+          <Flex
+            p="20px"
+            borderRadius="16px"
+            border="1px solid"
+            borderColor="var(--border)"
+            bg="var(--surface-2)"
+            align="center"
+            justify="space-between"
+          >
+            <Box>
+              <HStack spacing="8px" mb="4px">
+                <Text fontWeight="600" color={textColor}>GeekStore</Text>
+                <Badge colorScheme={features.showGeekstore ? 'green' : 'gray'}>
+                  {features.showGeekstore ? 'Visible' : 'Hidden'}
+                </Badge>
+              </HStack>
+              <Text fontSize="xs" color="gray.500">Show or hide the GeekStore tab in navigation.</Text>
+            </Box>
+            <Switch
+              colorScheme="brand"
+              size="lg"
+              isChecked={features.showGeekstore}
+              isDisabled={togglingFeature === 'showGeekstore' || isFeaturesLoading}
+              onChange={(e) => handleToggleFeature('showGeekstore', e.target.checked, 'GeekStore')}
             />
           </Flex>
         </Grid>
@@ -1229,11 +1246,11 @@ ON DUPLICATE KEY UPDATE
               borderRadius="full"
               fontSize="12px"
             >
-              1000 × 600 · 300 KB
+              {CANVAS_WIDTH} × {CANVAS_HEIGHT} · {Math.round(EXPECTED_SNAPSHOT_BYTES / 1024)} KB
             </Badge>
             <Button
               as={Link}
-              href="/user/rplace"
+              href="/user/canvas"
               target="_blank"
               size="sm"
               variant="outline"
@@ -1249,7 +1266,7 @@ ON DUPLICATE KEY UPDATE
 
         <Text fontSize="sm" mb="20px" color="var(--fg-muted)">
           Upload a new snapshot to update or wipe the live community canvas. You can upload an image (PNG, JPG, WebP)
-          which will be automatically quantized to the 16-color palette and packed to 300 KB, or provide a raw 300,000-byte 
+          which will be automatically quantized to the 16-color palette and packed to {Math.round(EXPECTED_SNAPSHOT_BYTES / 1024)} KB, or provide a raw {EXPECTED_SNAPSHOT_BYTES.toLocaleString()}-byte 
           binary snapshot (<Text as="span" fontFamily="var(--f-mono)">.bin</Text>).
         </Text>
 
@@ -1285,7 +1302,7 @@ ON DUPLICATE KEY UPDATE
               {canvasSnapshotFile ? canvasSnapshotFile.name : 'Choose an image (.png, .jpg, .webp) or snapshot file (.bin)'}
             </Text>
             <Text fontSize="xs" color="var(--fg-muted)" mt="4px">
-              Images will be automatically scaled to 1000×600 and quantized to 16 colors.
+              Images will be automatically scaled to {CANVAS_WIDTH}×{CANVAS_HEIGHT} and quantized to 16 colors.
             </Text>
           </Box>
 
@@ -1757,9 +1774,7 @@ ON DUPLICATE KEY UPDATE
                             size="xs"
                             colorScheme="red"
                             variant="ghost"
-                            onClick={() => {
-                              setDeleteRepoName(repo.name);
-                            }}
+                            onClick={() => handleDeleteRepo(repo.name)}
                           >
                             <Icon as={Trash2} size={12} />
                           </Button>
@@ -1776,7 +1791,7 @@ ON DUPLICATE KEY UPDATE
             <Text fontSize="sm" fontWeight="600" mb="8px" color={textColor}>Delete Repository</Text>
             <Grid templateColumns={{ base: '1fr', md: '3fr 1fr' }} gap="15px">
               <Input placeholder="Repository Name to Delete" variant="auth" value={deleteRepoName} onChange={(e) => setDeleteRepoName(e.target.value)} />
-              <Button colorScheme="red" w="100%" leftIcon={<Icon as={Trash2} />} onClick={handleDeleteRepo}>Delete Repo</Button>
+              <Button colorScheme="red" w="100%" leftIcon={<Icon as={Trash2} />} onClick={() => handleDeleteRepo()}>Delete Repo</Button>
             </Grid>
           </Box>
 

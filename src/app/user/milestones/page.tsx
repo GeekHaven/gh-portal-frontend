@@ -5,6 +5,7 @@ import {
   Box,
   Flex,
   Icon,
+  Spinner,
   Text,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
@@ -49,13 +50,14 @@ export default function Milestones() {
   const [selectedTab, setSelectedTab] = useState(0);
   const prefersReducedMotion = useReducedMotion();
   const router = useRouter();
-  const { features } = useFeatures();
+  const { features, isLoading: isFeaturesLoading } = useFeatures();
 
   React.useEffect(() => {
+    if (isFeaturesLoading) return;
     if (!features.showMilestones && !isAdminUser()) {
       router.replace('/user/events');
     }
-  }, [features.showMilestones, router]);
+  }, [isFeaturesLoading, features.showMilestones, router]);
 
   const WEEKS_TO_SHOW = [true, true, true, true, true];
   const SHOW_EVENTS = true;
@@ -85,6 +87,18 @@ export default function Milestones() {
 
   const isLoading = leaderboardLoading || eventWinnersLoading;
 
+  if (isFeaturesLoading) {
+    return (
+      <Flex minH="60vh" align="center" justify="center">
+        <Spinner size="xl" color="var(--accent)" />
+      </Flex>
+    );
+  }
+
+  if (!features.showMilestones && !isAdminUser()) {
+    return null;
+  }
+
   return (
     <Box w="full" pt="0" pb="24px">
       {/* 1. Header: use oc-page-heading markup with visible eyebrow and display stat tiles on the right */}
@@ -101,19 +115,16 @@ export default function Milestones() {
         borderBottom="1px solid var(--line)"
       >
         <Box flex="1" minW="0">
-          <p className="oc-eyebrow" style={{ marginBottom: '12px' }}>
-            <span />
-            <ShinyText text="Highlights · OpenCode 2026" speed={5} />
-          </p>
           <h1
             style={{
               fontFamily: 'var(--f-display)',
               fontWeight: 300,
               fontSize: 'clamp(32px, 5.5vw, 54px)',
               lineHeight: 1.15,
-              letterSpacing: '0.02em',
+              letterSpacing: '0.01em',
               color: 'var(--fg)',
               margin: '0 0 12px',
+              textWrap: 'balance',
             }}
           >
             <BlurText text="Moments that matter." delay={45} animateBy="words" direction="top" />
