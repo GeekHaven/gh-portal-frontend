@@ -38,6 +38,8 @@ import DecryptedText from 'components/reactbits/DecryptedText';
 import PageHeading from 'components/japanese/PageHeading';
 import ContributorAvatar from 'components/common/ContributorAvatar';
 import { isMaintainer } from 'constants/Maintainers';
+import { getLeaderboardEventConfig } from 'config/leaderboard.config';
+import { useFeatures } from 'contexts/FeaturesContext';
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
 import { FetchedEvents } from '../../../../api/events/events';
 import { isAdminUser } from 'utils/jwt';
@@ -100,8 +102,28 @@ export default function EventName() {
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const isStale = searchQuery !== deferredSearchQuery;
 
+  const { features } = useFeatures();
   const eventLabel = safeDecode(eventName);
   const isOpencode = eventLabel.toLowerCase().includes('opencode');
+  const eventConfig = useMemo(() => {
+    // 1. If admin configured this event in Admin Panel, that takes top priority!
+    const adminConfig =
+      features.leaderboardConfigs?.[eventLabel] ||
+      features.leaderboardConfigs?.[eventName] ||
+      (eventLabel ? features.leaderboardConfigs?.[eventLabel.trim()] : undefined);
+
+    if (adminConfig) {
+      return {
+        searchPlaceholder: adminConfig.searchPlaceholder || 'Search participants...',
+        showCollegeFilter: Boolean(adminConfig.showCollegeFilter),
+        showFirstYearFilter: Boolean(adminConfig.showFirstYearFilter),
+        showEventSelector: adminConfig.showEventSelector !== false,
+      };
+    }
+
+    // 2. Fall back to smart default configuration
+    return getLeaderboardEventConfig(eventLabel);
+  }, [features.leaderboardConfigs, eventLabel, eventName]);
 
   const handleEventUpdated = useCallback(
     (updatedEvent: any) => {
@@ -311,7 +333,9 @@ export default function EventName() {
   }, [showSpotlight, searchFilteredData, topThreeIdSet]);
 
   const hasActiveFilters =
-    selectedCollege !== 'All' || firstYearOnly || !!searchQuery.trim();
+    (eventConfig.showCollegeFilter && selectedCollege !== 'All') ||
+    (eventConfig.showFirstYearFilter && firstYearOnly) ||
+    !!searchQuery.trim();
 
   if (isLoading) {
     return <LeaderboardLoader />;
@@ -341,234 +365,243 @@ export default function EventName() {
         justify="space-between"
       >
         <Box flex={{ base: '1', md: '1 1 260px' }} minW={{ base: '100%', sm: '220px' }}>
-          <SearchProfileBanner value={searchQuery} onChange={setSearchQuery} w="100%" />
+          <SearchProfileBanner
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={eventConfig.searchPlaceholder}
+            w="100%"
+          />
         </Box>
 
         <Flex gap="10px" align="center" flexWrap="wrap" justify={{ base: 'flex-start', md: 'flex-end' }}>
           {/* Event selector dropdown */}
-          <Box onMouseEnter={() => setIsEventHovered(true)} onFocus={() => setIsEventHovered(true)}>
-          <Menu isLazy={!isEventHovered}>
-            <MenuButton
-              {...controlStyle}
-              borderColor="var(--border)"
-              position="relative"
-              aria-label="Select event"
-            >
-              <Flex align="center" gap="8px">
-                <Box display="flex" color="var(--accent)">
-                  <Trophy size={14} />
-                </Box>
-                <Text noOfLines={1} maxW={{ base: '110px', md: '170px' }} fontSize="13px" fontWeight="600">
-                  <DecryptedText
-                    text={eventLabel || 'Select Event'}
-                    animateOn="view"
-                    speed={35}
-                    maxIterations={10}
-                  />
-                </Text>
-                <Box display="flex" color="var(--subtle)">
-                  <ChevronDown size={14} />
-                </Box>
-              </Flex>
-            </MenuButton>
-            <Portal>
-              <MenuList
-                bg="var(--card-strong)"
-                color="var(--text)"
-                border="1px solid var(--border)"
-                borderRadius="14px"
-                boxShadow="var(--shadow)"
-                backdropFilter="blur(20px)"
-                py="6px"
-                maxH="300px"
-                overflowY="auto"
-                minW="220px"
-                zIndex={1500}
-                sx={{
-                  '&::-webkit-scrollbar': { width: '4px' },
-                  '&::-webkit-scrollbar-track': { bg: 'transparent' },
-                  '&::-webkit-scrollbar-thumb': { bg: 'var(--border)', borderRadius: 'full' },
-                }}
-              >
-                {availableEventNames.map((name) => {
-                  const isSelected = name.toLowerCase() === eventLabel.toLowerCase();
-                  return (
-                    <MenuItem
-                      key={name}
-                      onClick={() => handleSelectEvent(name)}
-                      bg="transparent"
-                      _hover={{ bg: 'var(--accent-soft)' }}
-                      _focus={{ bg: 'var(--accent-soft)' }}
-                      borderRadius="8px"
-                      mx="6px"
-                      w="calc(100% - 12px)"
-                      px="12px"
-                      py="8px"
-                      fontSize="13px"
-                      fontWeight={isSelected ? '700' : '500'}
-                      color={isSelected ? 'var(--accent)' : 'var(--text)'}
-                    >
-                      <Flex w="100%" justify="space-between" align="center" gap="10px">
-                        <Text noOfLines={1}>{name}</Text>
-                        {isSelected && <Check size={12} />}
-                      </Flex>
-                    </MenuItem>
-                  );
-                })}
-                {isAdmin && (
-                  <>
-                    <Box my="4px" mx="6px" borderTop="1px solid var(--border)" />
-                    <MenuItem
-                      onClick={() => setIsEditModalOpen(true)}
-                      bg="transparent"
-                      _hover={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
-                      _focus={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
-                      borderRadius="8px"
-                      mx="6px"
-                      w="calc(100% - 12px)"
-                      px="12px"
-                      py="8px"
-                      fontSize="12px"
-                      fontWeight="600"
-                      color="var(--accent)"
-                    >
-                      <Flex align="center" gap="8px">
-                        <Pencil size={13} />
-                        <Text noOfLines={1}>Edit &ldquo;{eventLabel}&rdquo;</Text>
-                      </Flex>
-                    </MenuItem>
-                  </>
-                )}
-              </MenuList>
-            </Portal>
-          </Menu>
-        </Box>
-
-        {/* College filter */}
-        <Box onMouseEnter={() => setIsCollegeHovered(true)} onFocus={() => setIsCollegeHovered(true)}>
-          <Menu isLazy={!isCollegeHovered}>
-            <MenuButton
-              {...controlStyle}
-              borderColor={selectedCollege !== 'All' ? 'var(--accent)' : 'var(--border)'}
-              position="relative"
-              aria-label="Filter by college"
-            >
-              {/* Chakra wraps MenuButton children in ONE span, so the icon/text/chevron
-                  need their own flex row or they stack vertically. */}
-              <Flex align="center" gap="8px">
-                <Box
-                  display="flex"
-                  color={selectedCollege !== 'All' ? 'var(--accent)' : 'var(--subtle)'}
+          {eventConfig.showEventSelector !== false && (
+            <Box onMouseEnter={() => setIsEventHovered(true)} onFocus={() => setIsEventHovered(true)}>
+              <Menu isLazy={!isEventHovered}>
+                <MenuButton
+                  {...controlStyle}
+                  borderColor="var(--border)"
+                  position="relative"
+                  aria-label="Select event"
                 >
-                  <Building2 size={14} />
-                </Box>
-                <Text noOfLines={1} maxW={{ base: '110px', md: '170px' }} fontSize="13px" fontWeight="600">
-                  {selectedCollege === 'All' ? 'All Colleges' : selectedCollege}
-                </Text>
-                <Box display="flex" color="var(--subtle)">
-                  <ChevronDown size={14} />
-                </Box>
-              </Flex>
-              {selectedCollege !== 'All' && (
+                  <Flex align="center" gap="8px">
+                    <Box display="flex" color="var(--accent)">
+                      <Trophy size={14} />
+                    </Box>
+                    <Text noOfLines={1} maxW={{ base: '110px', md: '170px' }} fontSize="13px" fontWeight="600">
+                      <DecryptedText
+                        text={eventLabel || 'Select Event'}
+                        animateOn="view"
+                        speed={35}
+                        maxIterations={10}
+                      />
+                    </Text>
+                    <Box display="flex" color="var(--subtle)">
+                      <ChevronDown size={14} />
+                    </Box>
+                  </Flex>
+                </MenuButton>
+                <Portal>
+                  <MenuList
+                    bg="var(--card-strong)"
+                    color="var(--text)"
+                    border="1px solid var(--border)"
+                    borderRadius="14px"
+                    boxShadow="var(--shadow)"
+                    backdropFilter="blur(20px)"
+                    py="6px"
+                    maxH="300px"
+                    overflowY="auto"
+                    minW="220px"
+                    zIndex={1500}
+                    sx={{
+                      '&::-webkit-scrollbar': { width: '4px' },
+                      '&::-webkit-scrollbar-track': { bg: 'transparent' },
+                      '&::-webkit-scrollbar-thumb': { bg: 'var(--border)', borderRadius: 'full' },
+                    }}
+                  >
+                    {availableEventNames.map((name) => {
+                      const isSelected = name.toLowerCase() === eventLabel.toLowerCase();
+                      return (
+                        <MenuItem
+                          key={name}
+                          onClick={() => handleSelectEvent(name)}
+                          bg="transparent"
+                          _hover={{ bg: 'var(--accent-soft)' }}
+                          _focus={{ bg: 'var(--accent-soft)' }}
+                          borderRadius="8px"
+                          mx="6px"
+                          w="calc(100% - 12px)"
+                          px="12px"
+                          py="8px"
+                          fontSize="13px"
+                          fontWeight={isSelected ? '700' : '500'}
+                          color={isSelected ? 'var(--accent)' : 'var(--text)'}
+                        >
+                          <Flex w="100%" justify="space-between" align="center" gap="10px">
+                            <Text noOfLines={1}>{name}</Text>
+                            {isSelected && <Check size={12} />}
+                          </Flex>
+                        </MenuItem>
+                      );
+                    })}
+                    {isAdmin && (
+                      <>
+                        <Box my="4px" mx="6px" borderTop="1px solid var(--border)" />
+                        <MenuItem
+                          onClick={() => setIsEditModalOpen(true)}
+                          bg="transparent"
+                          _hover={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
+                          _focus={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
+                          borderRadius="8px"
+                          mx="6px"
+                          w="calc(100% - 12px)"
+                          px="12px"
+                          py="8px"
+                          fontSize="12px"
+                          fontWeight="600"
+                          color="var(--accent)"
+                        >
+                          <Flex align="center" gap="8px">
+                            <Pencil size={13} />
+                            <Text noOfLines={1}>Edit &ldquo;{eventLabel}&rdquo;</Text>
+                          </Flex>
+                        </MenuItem>
+                      </>
+                    )}
+                  </MenuList>
+                </Portal>
+              </Menu>
+            </Box>
+          )}
+
+          {/* College filter: only rendered if enabled for this event and colleges exist */}
+          {eventConfig.showCollegeFilter && collegeOptions.length > 0 && (
+            <Box onMouseEnter={() => setIsCollegeHovered(true)} onFocus={() => setIsCollegeHovered(true)}>
+              <Menu isLazy={!isCollegeHovered}>
+                <MenuButton
+                  {...controlStyle}
+                  borderColor={selectedCollege !== 'All' ? 'var(--accent)' : 'var(--border)'}
+                  position="relative"
+                  aria-label="Filter by college"
+                >
+                  <Flex align="center" gap="8px">
+                    <Box
+                      display="flex"
+                      color={selectedCollege !== 'All' ? 'var(--accent)' : 'var(--subtle)'}
+                    >
+                      <Building2 size={14} />
+                    </Box>
+                    <Text noOfLines={1} maxW={{ base: '110px', md: '170px' }} fontSize="13px" fontWeight="600">
+                      {selectedCollege === 'All' ? 'All Colleges' : selectedCollege}
+                    </Text>
+                    <Box display="flex" color="var(--subtle)">
+                      <ChevronDown size={14} />
+                    </Box>
+                  </Flex>
+                  {selectedCollege !== 'All' && (
+                    <Box
+                      position="absolute"
+                      top="-4px"
+                      right="-4px"
+                      w="10px"
+                      h="10px"
+                      bg="var(--accent)"
+                      borderRadius="full"
+                      boxShadow="0 0 10px var(--accent)"
+                    />
+                  )}
+                </MenuButton>
+                <Portal>
+                  <MenuList
+                    bg="var(--card-strong)"
+                    color="var(--text)"
+                    border="1px solid var(--border)"
+                    borderRadius="14px"
+                    boxShadow="var(--shadow)"
+                    backdropFilter="blur(20px)"
+                    py="6px"
+                    maxH="300px"
+                    overflowY="auto"
+                    minW="220px"
+                    zIndex={1500}
+                    sx={{
+                      '&::-webkit-scrollbar': { width: '4px' },
+                      '&::-webkit-scrollbar-track': { bg: 'transparent' },
+                      '&::-webkit-scrollbar-thumb': { bg: 'var(--border)', borderRadius: 'full' },
+                    }}
+                  >
+                    {['All', ...collegeOptions].map((college) => {
+                      const selected = selectedCollege === college;
+                      return (
+                        <MenuItem
+                          key={college}
+                          onClick={() => handleSelectCollege(college)}
+                          bg="transparent"
+                          _hover={{ bg: 'var(--accent-soft)' }}
+                          _focus={{ bg: 'var(--accent-soft)' }}
+                          borderRadius="8px"
+                          mx="6px"
+                          w="calc(100% - 12px)"
+                          px="12px"
+                          py="8px"
+                          fontSize="13px"
+                          fontWeight={selected ? '700' : '500'}
+                          color={selected ? 'var(--accent)' : 'var(--text)'}
+                        >
+                          <Flex w="100%" justify="space-between" align="center" gap="10px">
+                            <Text noOfLines={1}>{college === 'All' ? 'All Colleges' : college}</Text>
+                            {selected && <Check size={12} />}
+                          </Flex>
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
+                </Portal>
+              </Menu>
+            </Box>
+          )}
+
+          {/* 1st years toggle: only rendered if enabled for this event */}
+          {eventConfig.showFirstYearFilter && (
+            <chakra.button
+              type="button"
+              role="switch"
+              aria-checked={firstYearOnly}
+              aria-label="Show first years only"
+              onClick={handleToggleFirstYear}
+              display="flex"
+              alignItems="center"
+              gap="10px"
+              {...controlStyle}
+              borderColor={firstYearOnly ? 'var(--accent)' : 'var(--border)'}
+            >
+              <Box display="flex" color={firstYearOnly ? 'var(--accent)' : 'var(--subtle)'}>
+                <Calendar size={14} />
+              </Box>
+              <span>1st Years Only</span>
+              <Box
+                position="relative"
+                w="34px"
+                h="20px"
+                borderRadius="full"
+                bg={firstYearOnly ? 'var(--accent)' : 'var(--accent-soft)'}
+                transition="background 0.2s ease"
+                flexShrink={0}
+              >
                 <Box
                   position="absolute"
-                  top="-4px"
-                  right="-4px"
-                  w="10px"
-                  h="10px"
-                  bg="var(--accent)"
+                  top="2px"
+                  left={firstYearOnly ? '16px' : '2px'}
+                  w="16px"
+                  h="16px"
                   borderRadius="full"
-                  boxShadow="0 0 10px var(--accent)"
+                  bg={firstYearOnly ? 'var(--accent-ink)' : 'var(--muted)'}
+                  transition="left 0.2s ease, background 0.2s ease"
                 />
-              )}
-            </MenuButton>
-            <Portal>
-              <MenuList
-                bg="var(--card-strong)"
-                color="var(--text)"
-                border="1px solid var(--border)"
-                borderRadius="14px"
-                boxShadow="var(--shadow)"
-                backdropFilter="blur(20px)"
-                py="6px"
-                maxH="300px"
-                overflowY="auto"
-                minW="220px"
-                zIndex={1500}
-                sx={{
-                  '&::-webkit-scrollbar': { width: '4px' },
-                  '&::-webkit-scrollbar-track': { bg: 'transparent' },
-                  '&::-webkit-scrollbar-thumb': { bg: 'var(--border)', borderRadius: 'full' },
-                }}
-              >
-                {['All', ...collegeOptions].map((college) => {
-                  const selected = selectedCollege === college;
-                  return (
-                    <MenuItem
-                      key={college}
-                      onClick={() => handleSelectCollege(college)}
-                      bg="transparent"
-                      _hover={{ bg: 'var(--accent-soft)' }}
-                      _focus={{ bg: 'var(--accent-soft)' }}
-                      borderRadius="8px"
-                      mx="6px"
-                      w="calc(100% - 12px)"
-                      px="12px"
-                      py="8px"
-                      fontSize="13px"
-                      fontWeight={selected ? '700' : '500'}
-                      color={selected ? 'var(--accent)' : 'var(--text)'}
-                    >
-                      <Flex w="100%" justify="space-between" align="center" gap="10px">
-                        <Text noOfLines={1}>{college === 'All' ? 'All Colleges' : college}</Text>
-                        {selected && <Check size={12} />}
-                      </Flex>
-                    </MenuItem>
-                  );
-                })}
-              </MenuList>
-            </Portal>
-          </Menu>
-        </Box>
-
-        {/* 1st years toggle: real button with switch semantics (keyboard + screen reader friendly) */}
-        <chakra.button
-          type="button"
-          role="switch"
-          aria-checked={firstYearOnly}
-          aria-label="Show first years only"
-          onClick={handleToggleFirstYear}
-          display="flex"
-          alignItems="center"
-          gap="10px"
-          {...controlStyle}
-          borderColor={firstYearOnly ? 'var(--accent)' : 'var(--border)'}
-        >
-          <Box display="flex" color={firstYearOnly ? 'var(--accent)' : 'var(--subtle)'}>
-            <Calendar size={14} />
-          </Box>
-          <span>1st Years Only</span>
-          <Box
-            position="relative"
-            w="34px"
-            h="20px"
-            borderRadius="full"
-            bg={firstYearOnly ? 'var(--accent)' : 'var(--accent-soft)'}
-            transition="background 0.2s ease"
-            flexShrink={0}
-          >
-            <Box
-              position="absolute"
-              top="2px"
-              left={firstYearOnly ? '16px' : '2px'}
-              w="16px"
-              h="16px"
-              borderRadius="full"
-              bg={firstYearOnly ? 'var(--accent-ink)' : 'var(--muted)'}
-              transition="left 0.2s ease, background 0.2s ease"
-            />
-          </Box>
-        </chakra.button>
+              </Box>
+            </chakra.button>
+          )}
 
         {hasActiveFilters && (
           <chakra.button
@@ -628,10 +661,10 @@ export default function EventName() {
           {searchQuery.trim() && (
             <FilterChip label={`Search: ${searchQuery.trim()}`} onRemove={handleClearSearch} />
           )}
-          {selectedCollege !== 'All' && (
+          {eventConfig.showCollegeFilter && selectedCollege !== 'All' && (
             <FilterChip label={selectedCollege} onRemove={handleClearCollege} />
           )}
-          {firstYearOnly && (
+          {eventConfig.showFirstYearFilter && firstYearOnly && (
             <FilterChip label="1st years only" onRemove={handleClearFirstYear} />
           )}
         </Flex>

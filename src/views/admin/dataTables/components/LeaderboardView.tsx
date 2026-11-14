@@ -28,6 +28,8 @@ import SearchProfileBanner from 'views/admin/profile/components/SearchProfileBan
 import { FetchedLeaderboard, type LeaderboardEntry } from 'api/leaderboard/leaderboard';
 import { FetchedEvents } from 'api/events/events';
 import { isMaintainer } from 'constants/Maintainers';
+import { getLeaderboardEventConfig } from 'config/leaderboard.config';
+import { useFeatures } from 'contexts/FeaturesContext';
 import { isAdminUser } from 'utils/jwt';
 import EditEventModal from 'components/modals/EditEventModal';
 
@@ -102,7 +104,20 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
     router.push(`/user/leaderboard/${encodeURIComponent(newEvent)}`);
   };
 
+  const { features } = useFeatures();
   const isOpencode = (activeEvent || '').toLowerCase().includes('opencode');
+  const eventConfig = useMemo(() => {
+    const adminConfig = features.leaderboardConfigs?.[activeEvent];
+    if (adminConfig) {
+      return {
+        searchPlaceholder: adminConfig.searchPlaceholder || 'Search participants...',
+        showCollegeFilter: Boolean(adminConfig.showCollegeFilter),
+        showFirstYearFilter: Boolean(adminConfig.showFirstYearFilter),
+        showEventSelector: adminConfig.showEventSelector !== false,
+      };
+    }
+    return getLeaderboardEventConfig(activeEvent);
+  }, [features.leaderboardConfigs, activeEvent]);
 
   const tableDataColumns: RowObj[] = useMemo(() => {
     const rawList = LeadData || [];
@@ -132,7 +147,9 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
   }, [tableDataColumns]);
 
   const hasActiveFilters =
-    selectedCollege !== 'All' || firstYearOnly || !!searchQuery.trim();
+    (eventConfig.showCollegeFilter && selectedCollege !== 'All') ||
+    (eventConfig.showFirstYearFilter && firstYearOnly) ||
+    !!searchQuery.trim();
 
   const filteredTableData = useMemo(() => {
     let data = tableDataColumns;
@@ -209,10 +226,11 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
             <SearchProfileBanner
               value={searchQuery}
               onChange={setSearchQuery}
+              placeholder={eventConfig.searchPlaceholder}
             />
 
             {/* Event Selector Dropdown */}
-            {availableEvents.length > 0 && (
+            {eventConfig.showEventSelector !== false && availableEvents.length > 0 && (
               <Box>
                 <Menu isLazy>
                   <MenuButton
@@ -326,102 +344,86 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
               </Button>
             )}
 
-            {/* College Filter */}
-            <Box
-              onMouseEnter={() => setIsCollegeHovered(true)}
-              onFocus={() => setIsCollegeHovered(true)}
-            >
-              <Menu isLazy={!isCollegeHovered}>
-                <MenuButton
-                  display="flex"
-                  alignItems="center"
-                  gap="8px"
-                  px={{ base: '10px', md: '14px' }}
-                  py={{ base: '8px', md: '10px' }}
-                  bg={glassBg}
-                  borderRadius="16px"
-                  border="1px solid"
-                  borderColor={selectedCollege !== 'All' ? opencodeTokens.colors.accent.sakura : filterBorder}
-                  backdropFilter="blur(20px)"
-                  boxShadow={opencodeTokens.shadows.glass}
-                  transition="all 0.3s ease"
-                  position="relative"
-                  cursor="pointer"
-                  _hover={{ borderColor: opencodeTokens.colors.accent.sakura }}
-                >
-                  <Box
-                    color={selectedCollege !== 'All' ? opencodeTokens.colors.accent.sakura : opencodeTokens.colors.text.secondary}
+            {/* College Filter: only shown if enabled for this event */}
+            {eventConfig.showCollegeFilter && (
+              <Box
+                onMouseEnter={() => setIsCollegeHovered(true)}
+                onFocus={() => setIsCollegeHovered(true)}
+              >
+                <Menu isLazy={!isCollegeHovered}>
+                  <MenuButton
                     display="flex"
                     alignItems="center"
-                    transition="color 0.2s ease"
+                    gap="8px"
+                    px={{ base: '10px', md: '14px' }}
+                    py={{ base: '8px', md: '10px' }}
+                    bg={glassBg}
+                    borderRadius="16px"
+                    border="1px solid"
+                    borderColor={selectedCollege !== 'All' ? opencodeTokens.colors.accent.sakura : filterBorder}
+                    backdropFilter="blur(20px)"
+                    boxShadow={opencodeTokens.shadows.glass}
+                    transition="all 0.3s ease"
+                    position="relative"
+                    cursor="pointer"
+                    _hover={{ borderColor: opencodeTokens.colors.accent.sakura }}
                   >
-                    <FaBuilding size={16} />
-                  </Box>
-                  <Text
-                    fontSize="13px"
-                    fontWeight="600"
-                    color={textColor}
-                    noOfLines={1}
-                    maxW={{ base: '100px', md: '140px' }}
-                  >
-                    {selectedCollege === 'All' ? 'All Colleges' : selectedCollege}
-                  </Text>
-                  <Box color={opencodeTokens.colors.text.secondary} display="flex" alignItems="center">
-                    <ChevronDown size={14} />
-                  </Box>
-                  {selectedCollege !== 'All' && (
                     <Box
-                      position="absolute"
-                      top="-4px"
-                      right="-4px"
-                      w="10px"
-                      h="10px"
-                      bg={opencodeTokens.colors.accent.sakura}
-                      borderRadius="full"
-                      boxShadow={`0 0 10px ${opencodeTokens.colors.accent.sakura}`}
-                    />
-                  )}
-                </MenuButton>
-                <MenuList
-                  bg={menuBg}
-                  border="1px solid"
-                  borderColor={menuBorder}
-                  borderRadius="14px"
-                  boxShadow={opencodeTokens.shadows.glass}
-                  backdropFilter="blur(20px)"
-                  py="6px"
-                  maxH="280px"
-                  overflowY="auto"
-                  minW="200px"
-                  zIndex={20}
-                  sx={{
-                    '&::-webkit-scrollbar': { width: '4px' },
-                    '&::-webkit-scrollbar-track': { bg: 'transparent' },
-                    '&::-webkit-scrollbar-thumb': {
-                      bg: opencodeTokens.colors.border.medium,
-                      borderRadius: 'full',
-                    },
-                  }}
-                >
-                  <MenuItem
-                    onClick={() => setSelectedCollege('All')}
-                    bg="transparent"
-                    _hover={{ bg: menuHover }}
-                    borderRadius="8px"
-                    mx="6px"
-                    px="12px"
-                    py="8px"
-                    fontSize="13px"
-                    fontWeight={selectedCollege === 'All' ? '700' : '500'}
-                    color={selectedCollege === 'All' ? opencodeTokens.colors.accent.sakura : textColor}
-                    icon={selectedCollege === 'All' ? <FaCheck size={14} /> : undefined}
+                      color={selectedCollege !== 'All' ? opencodeTokens.colors.accent.sakura : opencodeTokens.colors.text.secondary}
+                      display="flex"
+                      alignItems="center"
+                      transition="color 0.2s ease"
+                    >
+                      <FaBuilding size={16} />
+                    </Box>
+                    <Text
+                      fontSize="13px"
+                      fontWeight="600"
+                      color={textColor}
+                      noOfLines={1}
+                      maxW={{ base: '100px', md: '140px' }}
+                    >
+                      {selectedCollege === 'All' ? 'All Colleges' : selectedCollege}
+                    </Text>
+                    <Box color={opencodeTokens.colors.text.secondary} display="flex" alignItems="center">
+                      <ChevronDown size={14} />
+                    </Box>
+                    {selectedCollege !== 'All' && (
+                      <Box
+                        position="absolute"
+                        top="-4px"
+                        right="-4px"
+                        w="10px"
+                        h="10px"
+                        bg={opencodeTokens.colors.accent.sakura}
+                        borderRadius="full"
+                        boxShadow={`0 0 10px ${opencodeTokens.colors.accent.sakura}`}
+                      />
+                    )}
+                  </MenuButton>
+                  <MenuList
+                    bg={menuBg}
+                    border="1px solid"
+                    borderColor={menuBorder}
+                    borderRadius="14px"
+                    boxShadow={opencodeTokens.shadows.glass}
+                    backdropFilter="blur(20px)"
+                    py="6px"
+                    maxH="280px"
+                    overflowY="auto"
+                    minW="200px"
+                    zIndex={20}
+                    sx={{
+                      '&::-webkit-scrollbar': { width: '4px' },
+                      '&::-webkit-scrollbar-track': { bg: 'transparent' },
+                      '&::-webkit-scrollbar-thumb': {
+                        bg: opencodeTokens.colors.border.medium,
+                        borderRadius: 'full',
+                      },
+                    }}
                   >
-                    All Colleges
-                  </MenuItem>
-                  {collegeOptions.map((college) => (
                     <MenuItem
-                      key={college}
-                      onClick={() => setSelectedCollege(college)}
+                      onClick={() => setSelectedCollege('All')}
                       bg="transparent"
                       _hover={{ bg: menuHover }}
                       borderRadius="8px"
@@ -429,49 +431,69 @@ export default function LeaderboardView({ initialEventName }: LeaderboardViewPro
                       px="12px"
                       py="8px"
                       fontSize="13px"
-                      fontWeight={selectedCollege === college ? '700' : '500'}
-                      color={selectedCollege === college ? opencodeTokens.colors.accent.sakura : textColor}
-                      icon={selectedCollege === college ? <FaCheck size={14} /> : undefined}
+                      fontWeight={selectedCollege === 'All' ? '700' : '500'}
+                      color={selectedCollege === 'All' ? opencodeTokens.colors.accent.sakura : textColor}
+                      icon={selectedCollege === 'All' ? <FaCheck size={14} /> : undefined}
                     >
-                      {college}
+                      All Colleges
                     </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-            </Box>
-
-            {/* 1st Year Filter */}
-            <Flex
-              align="center"
-              gap="10px"
-              px={{ base: '12px', md: '16px' }}
-              py={{ base: '8px', md: '10px' }}
-              bg={glassBg}
-              borderRadius="16px"
-              border="1px solid"
-              borderColor={firstYearOnly ? opencodeTokens.colors.accent.sakura : filterBorder}
-              backdropFilter="blur(20px)"
-              boxShadow={opencodeTokens.shadows.glass}
-              transition="all 0.3s ease"
-              cursor="pointer"
-              onClick={() => setFirstYearOnly((prev) => !prev)}
-              _hover={{ borderColor: opencodeTokens.colors.accent.sakura }}
-            >
-              <Box color={firstYearOnly ? opencodeTokens.colors.accent.sakura : opencodeTokens.colors.text.secondary} display="flex">
-                <FaCalendarAlt size={16} />
+                    {collegeOptions.map((college) => (
+                      <MenuItem
+                        key={college}
+                        onClick={() => setSelectedCollege(college)}
+                        bg="transparent"
+                        _hover={{ bg: menuHover }}
+                        borderRadius="8px"
+                        mx="6px"
+                        px="12px"
+                        py="8px"
+                        fontSize="13px"
+                        fontWeight={selectedCollege === college ? '700' : '500'}
+                        color={selectedCollege === college ? opencodeTokens.colors.accent.sakura : textColor}
+                        icon={selectedCollege === college ? <FaCheck size={14} /> : undefined}
+                      >
+                        {college}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
               </Box>
-              <Text fontSize="13px" fontWeight="600" color={textColor}>
-                1st Years Only
-              </Text>
-              <Switch
-                isChecked={firstYearOnly}
-                isReadOnly
-                pointerEvents="none"
-                tabIndex={-1}
-                colorScheme="pink"
-                size="sm"
-              />
-            </Flex>
+            )}
+
+            {/* 1st Year Filter: only shown if enabled for this event */}
+            {eventConfig.showFirstYearFilter && (
+              <Flex
+                align="center"
+                gap="10px"
+                px={{ base: '12px', md: '16px' }}
+                py={{ base: '8px', md: '10px' }}
+                bg={glassBg}
+                borderRadius="16px"
+                border="1px solid"
+                borderColor={firstYearOnly ? opencodeTokens.colors.accent.sakura : filterBorder}
+                backdropFilter="blur(20px)"
+                boxShadow={opencodeTokens.shadows.glass}
+                transition="all 0.3s ease"
+                cursor="pointer"
+                onClick={() => setFirstYearOnly((prev) => !prev)}
+                _hover={{ borderColor: opencodeTokens.colors.accent.sakura }}
+              >
+                <Box color={firstYearOnly ? opencodeTokens.colors.accent.sakura : opencodeTokens.colors.text.secondary} display="flex">
+                  <FaCalendarAlt size={16} />
+                </Box>
+                <Text fontSize="13px" fontWeight="600" color={textColor}>
+                  1st Years Only
+                </Text>
+                <Switch
+                  isChecked={firstYearOnly}
+                  isReadOnly
+                  pointerEvents="none"
+                  tabIndex={-1}
+                  colorScheme="pink"
+                  size="sm"
+                />
+              </Flex>
+            )}
 
             {hasActiveFilters && (
               <Flex

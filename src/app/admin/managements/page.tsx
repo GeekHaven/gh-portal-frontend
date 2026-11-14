@@ -78,6 +78,7 @@ import { useRouter } from 'next/navigation';
 import { RingLoader } from 'react-spinners';
 import { isAdminUser } from 'utils/jwt';
 import { useFeatures } from 'contexts/FeaturesContext';
+import AdminLeaderboardConfigSection from 'components/admin/AdminLeaderboardConfigSection';
 
 export default function ManagementPage() {
   const router = useRouter();
@@ -1082,6 +1083,9 @@ ON DUPLICATE KEY UPDATE
           </Button>
         </Grid>
       </Box>
+
+      {/* ─── EVENT LEADERBOARD CONFIGURATION (FILTERS & SEARCH) ─── */}
+      <AdminLeaderboardConfigSection events={eventData?.data || []} />
 
       {/* ─── EVENT LEADERBOARD UPLOAD (SQL) ─── */}
       <Box bg={cardBg} p={{ base: '18px', md: '30px' }} borderRadius="20px" border="1px solid var(--border)" boxShadow={shadowSoft} mb="24px">
