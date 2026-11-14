@@ -3,13 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import SakuraCanvas from "./SakuraCanvas";
-import { ArrowRight, Sparkles, Terminal } from "lucide-react";
+import { ArrowRight, Sparkles, Terminal, Trophy } from "lucide-react";
 import SpecularButton from "./SpecularButton";
 import { getApiBase } from "utils/apiBase";
+import { useAuth } from "contexts/AuthContext";
 
 export default function HeroSection() {
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [isFrozen, setIsFrozen] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleLandingEntered = () => {
@@ -162,30 +169,56 @@ export default function HeroSection() {
         <div className="mt-14 sm:mt-18 md:mt-20 flex flex-col items-center justify-center gap-4 sm:gap-5 w-full">
           {/* Contributor & Explore Projects */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
-            {/* Primary CTA: Contributor */}
-            <SpecularButton
-              size="lg"
-              radius={24}
-              tint="#B8E5D5"
-              tintOpacity={0.16}
-              textColor="#0C1C2C"
-              lineColor="#ffffff"
-              baseColor="#B8E5D5"
-              intensity={1}
-              idleIntensity={0.35}
-              shineSize={10}
-              shineFade={34}
-              thickness={1.2}
-              glow={1}
-              followMouse
-              proximity={250}
-              href={`${getApiBase()}/api/v1/auth/github`}
-              className="!bg-[#B8E5D5] hover:!bg-[#A3DAC7] !text-[#0C1C2C] font-semibold text-sm sm:text-base shadow-lg shadow-[#58B99A]/20"
-            >
-              <Terminal className="w-4 h-4 text-[#0C1C2C]" />
-              <span>Join as Contributor</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#0C1C2C]" />
-            </SpecularButton>
+            {/* Primary CTA: Contributor / Leaderboard */}
+            {mounted && isLoggedIn ? (
+              <SpecularButton
+                size="lg"
+                radius={24}
+                tint="#B8E5D5"
+                tintOpacity={0.16}
+                textColor="#0C1C2C"
+                lineColor="#ffffff"
+                baseColor="#B8E5D5"
+                intensity={1}
+                idleIntensity={0.35}
+                shineSize={10}
+                shineFade={34}
+                thickness={1.2}
+                glow={1}
+                followMouse
+                proximity={250}
+                href="/user/leaderboard/Opencode"
+                className="!bg-[#B8E5D5] hover:!bg-[#A3DAC7] !text-[#0C1C2C] font-semibold text-sm sm:text-base shadow-lg shadow-[#58B99A]/20"
+              >
+                <Trophy className="w-4 h-4 text-[#0C1C2C]" />
+                <span>View Leaderboard</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#0C1C2C]" />
+              </SpecularButton>
+            ) : (
+              <SpecularButton
+                size="lg"
+                radius={24}
+                tint="#B8E5D5"
+                tintOpacity={0.16}
+                textColor="#0C1C2C"
+                lineColor="#ffffff"
+                baseColor="#B8E5D5"
+                intensity={1}
+                idleIntensity={0.35}
+                shineSize={10}
+                shineFade={34}
+                thickness={1.2}
+                glow={1}
+                followMouse
+                proximity={250}
+                href={`${getApiBase()}/api/v1/auth/github`}
+                className="!bg-[#B8E5D5] hover:!bg-[#A3DAC7] !text-[#0C1C2C] font-semibold text-sm sm:text-base shadow-lg shadow-[#58B99A]/20"
+              >
+                <Terminal className="w-4 h-4 text-[#0C1C2C]" />
+                <span>Join as Contributor</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-[#0C1C2C]" />
+              </SpecularButton>
+            )}
 
             {/* Secondary CTA: Explore Projects */}
             <SpecularButton
