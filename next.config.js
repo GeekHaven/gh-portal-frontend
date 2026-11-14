@@ -96,6 +96,9 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@chakra-ui/react', 'lucide-react', 'react-icons'],
   },
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({

@@ -13,6 +13,7 @@ import {
   VStack,
   Heading,
   Grid,
+  Switch,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -37,6 +38,7 @@ export default function Addevent() {
     description: '',
     startDate: '',
     endDate: '',
+    hasPoints: true,
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [coverFiles, setCoverFiles] = useState<File[]>([]);
@@ -131,6 +133,7 @@ export default function Addevent() {
     formData.append('description', eventData.description);
     formData.append('startDate', new Date(eventData.startDate).toISOString());
     formData.append('endDate', new Date(eventData.endDate).toISOString());
+    formData.append('hasPoints', String(eventData.hasPoints));
 
     if (logoFile) {
       formData.append('logoImage', logoFile);
@@ -273,6 +276,35 @@ export default function Addevent() {
                 />
               </FormControl>
             </Grid>
+
+            {/* Dynamic Points System Toggle */}
+            <FormControl
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              p="16px"
+              bg="var(--surface-2)"
+              border="1px solid var(--border)"
+              borderRadius="14px"
+            >
+              <Box pr="16px">
+                <FormLabel htmlFor="has-points-toggle" mb="4px" fontSize="sm" fontWeight="600" color="var(--fg)">
+                  Dynamic Points System
+                </FormLabel>
+                <Text fontSize="xs" color="var(--fg-muted)">
+                  Enable if participants earn points to rank (e.g. OpenCode). Disable for rank-only events (e.g. Hackathons, Design Contests) to hide points and rank participants directly.
+                </Text>
+              </Box>
+              <Switch
+                id="has-points-toggle"
+                colorScheme="teal"
+                size="lg"
+                isChecked={eventData.hasPoints}
+                onChange={(e) =>
+                  setEventData((prev) => ({ ...prev, hasPoints: e.target.checked }))
+                }
+              />
+            </FormControl>
 
             <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap="24px">
               <FormControl isRequired>

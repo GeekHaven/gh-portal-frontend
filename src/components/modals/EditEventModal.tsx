@@ -61,6 +61,7 @@ export default function EditEventModal({
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [isFlagship, setIsFlagship] = useState(false);
+  const [hasPoints, setHasPoints] = useState(true);
 
   // Media states
   const [existingLogoUrl, setExistingLogoUrl] = useState<string | null>(null);
@@ -115,6 +116,7 @@ export default function EditEventModal({
         }
 
         setIsFlagship(Boolean(data.isFlagship));
+        setHasPoints(data.hasPoints !== false);
         setExistingLogoUrl(data.logoImageURL || null);
 
         if (Array.isArray(data.coverImagesURL)) {
@@ -215,6 +217,7 @@ export default function EditEventModal({
         formData.append('endDate', new Date(endDate).toISOString());
       }
       formData.append('isFlagship', String(isFlagship));
+      formData.append('hasPoints', String(hasPoints));
 
       if (logoFile) {
         formData.append('logoImage', logoFile);
@@ -395,6 +398,23 @@ export default function EditEventModal({
                     isChecked={isFlagship}
                     onChange={(e) => setIsFlagship(e.target.checked)}
                     colorScheme="purple"
+                  />
+                </FormControl>
+
+                {/* Dynamic Points System Switch */}
+                <FormControl display="flex" alignItems="center" justifyContent="space-between" bg="var(--surface-2)" p={3} borderRadius="12px" border="1px solid var(--border)">
+                  <Box>
+                    <Text fontSize="sm" fontWeight="600" color="var(--fg)">
+                      Dynamic Points System
+                    </Text>
+                    <Text fontSize="xs" color="var(--fg-muted)">
+                      Enable if participants earn points to rank (e.g. OpenCode). Disable for rank-only events.
+                    </Text>
+                  </Box>
+                  <Switch
+                    isChecked={hasPoints}
+                    onChange={(e) => setHasPoints(e.target.checked)}
+                    colorScheme="teal"
                   />
                 </FormControl>
 
