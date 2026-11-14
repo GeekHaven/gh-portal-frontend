@@ -19,14 +19,14 @@ export default function Footer() {
         &copy; {new Date().getFullYear()}{' '}
         <span>Made with ❤️ by </span>
         <Link
-          href="https://geekhaven.iiita.ac.in/"
+          href="https://web.geekhaven.in"
           target="_blank"
           rel="noopener noreferrer"
           color="var(--accent)"
           fontWeight="600"
           _hover={{ textDecoration: 'underline' }}
         >
-          Geekhaven
+          GeekHaven
         </Link>
       </Text>
       <Link

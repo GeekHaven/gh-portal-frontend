@@ -52,7 +52,7 @@ const routes: IRoute[] = [
     name: 'Leaderboard',
     layout: '/user',
     icon: <Icon as={BarChart2} width="20px" height="20px" color="inherit" />,
-    path: '/leaderboard/Opencode',
+    path: "/leaderboard/Opencode'26",
   },
   {
     name: 'Geekstore',

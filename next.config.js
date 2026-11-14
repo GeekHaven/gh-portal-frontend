@@ -26,7 +26,7 @@ const nextConfig = {
       },
       {
         source: '/leaderboard',
-        destination: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
         permanent: false,
       },
       {
@@ -36,7 +36,12 @@ const nextConfig = {
       },
       {
         source: '/user/leaderboard',
-        destination: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
+        permanent: false,
+      },
+      {
+        source: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
         permanent: false,
       },
       {
@@ -52,6 +57,16 @@ const nextConfig = {
       {
         source: '/geekstore/orders',
         destination: '/user/geekstore/orders',
+        permanent: false,
+      },
+      {
+        source: '/rplace',
+        destination: '/user/canvas',
+        permanent: false,
+      },
+      {
+        source: '/user/rplace',
+        destination: '/user/canvas',
         permanent: false,
       },
     ];

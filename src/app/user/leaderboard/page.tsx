@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function LeaderboardPage() {
-  redirect('/user/leaderboard/Opencode');
+  redirect("/user/leaderboard/Opencode'26");
 }

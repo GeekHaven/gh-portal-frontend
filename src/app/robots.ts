@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://opencode.iiita.ac.in';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://events.geekhaven.in';
 
   return {
     rules: {

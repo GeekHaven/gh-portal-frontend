@@ -285,7 +285,7 @@ export default function CanvasPage() {
           gap="14px"
         >
           <Link
-            href="/user/leaderboard/Opencode"
+            href="/user/leaderboard"
             className="oc-button oc-button-secondary"
             aria-label="View Leaderboard"
           >
