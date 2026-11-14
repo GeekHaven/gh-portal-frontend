@@ -20,11 +20,11 @@ import Link from 'next/link';
 import Canvas from '../../../components/Canvas/Canvas';
 import BlurText from 'components/reactbits/BlurText';
 import PageHeading from 'components/japanese/PageHeading';
+import { getApiBase } from 'utils/apiBase';
 
-const BACKEND_API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  'http://localhost:4000';
+function getBackendApiUrl() {
+  return getApiBase();
+}
 
 // ─── Theme constants ───
 const SERIF = 'var(--f-display)';
@@ -71,7 +71,7 @@ function calculateTier(points: number) {
   return { maxPixels: 2, cooldown: 60 };
 }
 
-export default function RPlaceCanvasPage() {
+export default function CanvasPage() {
   const [userPoints, setUserPoints] = useState<number | null>(null);
   const [maxPixels, setMaxPixels] = useState<number>(2);
   const [cooldown, setCooldown] = useState<number>(60);
@@ -90,7 +90,7 @@ export default function RPlaceCanvasPage() {
     const username = decoded.id;
     setUserHandle(username);
 
-    fetch(`${BACKEND_API_URL}/api/v1/participant/${encodeURIComponent(username)}/pr-points`)
+    fetch(`${getBackendApiUrl()}/api/v1/participant/${encodeURIComponent(username)}/pr-points`)
       .then((res) => (res.ok ? res.json() : null))
       .then((body) => {
         if (body && body.data !== undefined) {
@@ -119,7 +119,7 @@ export default function RPlaceCanvasPage() {
       {/* ─── 1. HEADER ─── */}
       <PageHeading
         eyebrow="COMMUNITY CANVAS · OPENCODE 2026"
-        title="R/Place Canvas"
+        title="OpenCode Canvas"
         description="Every contribution leaves its mark. Place pixels directly on the live community canvas below, collaborate with other contributors, and use your OpenCode PR points to unlock faster cooldowns and bigger pixel bursts."
         badge={
           <HStack
@@ -146,16 +146,12 @@ export default function RPlaceCanvasPage() {
 
       {/* ─── 3. LEADERBOARD ADVANTAGE & TIERS ─── */}
       <Box className="glass-panel" p={{ base: '20px', sm: '24px', md: '32px' }}>
-        <p className="oc-eyebrow">
-          <span />
-          Leaderboard Advantage
-        </p>
         <h2
           style={{
             fontFamily: SERIF,
             fontWeight: 400,
             fontSize: 'clamp(26px, 3vw, 34px)',
-            letterSpacing: '-0.03em',
+            letterSpacing: '-0.02em',
             lineHeight: 1.2,
             marginBottom: 10,
             color: 'var(--text)',
@@ -289,7 +285,7 @@ export default function RPlaceCanvasPage() {
           gap="14px"
         >
           <Link
-            href="/user/leaderboard/Opencode"
+            href="/user/leaderboard"
             className="oc-button oc-button-secondary"
             aria-label="View Leaderboard"
           >

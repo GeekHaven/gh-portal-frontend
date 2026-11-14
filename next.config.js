@@ -26,7 +26,7 @@ const nextConfig = {
       },
       {
         source: '/leaderboard',
-        destination: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
         permanent: false,
       },
       {
@@ -36,7 +36,12 @@ const nextConfig = {
       },
       {
         source: '/user/leaderboard',
-        destination: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
+        permanent: false,
+      },
+      {
+        source: '/user/leaderboard/Opencode',
+        destination: "/user/leaderboard/Opencode'26",
         permanent: false,
       },
       {
@@ -53,6 +58,25 @@ const nextConfig = {
         source: '/geekstore/orders',
         destination: '/user/geekstore/orders',
         permanent: false,
+      },
+      {
+        source: '/rplace',
+        destination: '/user/canvas',
+        permanent: false,
+      },
+      {
+        source: '/user/rplace',
+        destination: '/user/canvas',
+        permanent: false,
+      },
+    ];
+  },
+  async rewrites() {
+    const backendUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000').replace(/\/+$/, '');
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: `${backendUrl}/api/v1/:path*`,
       },
     ];
   },

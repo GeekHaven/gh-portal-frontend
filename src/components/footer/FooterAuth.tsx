@@ -43,11 +43,11 @@ export default function Footer(props: { [x: string]: any }) {
           <Link
             mx="3px"
             color={textColor}
-            href="https://www.geekhaven.iiita.ac.in"
+            href="https://web.geekhaven.in"
             target="_blank"
             fontWeight="700"
           >
-          Geekhaven!
+          GeekHaven!
           </Link>
         </Text>
       </Text>

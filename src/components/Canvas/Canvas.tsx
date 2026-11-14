@@ -31,9 +31,18 @@ import {
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  EXPECTED_SNAPSHOT_BYTES,
   renderSnapshotToCanvas,
   drawPixel,
 } from '../../utils/rplaceProtocol';
+import {
+  DEFAULT_ZOOM,
+  MIN_ZOOM,
+  MAX_ZOOM,
+  ZOOM_STEP,
+  INITIAL_PAN_X,
+  INITIAL_PAN_Y,
+} from '../../config/canvas.config';
 
 // 16-color standard palette aligned with backend protocol indices
 export const PALETTE = [
@@ -117,13 +126,9 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
   const [isError, setIsError] = useState<boolean>(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<number | null>(null);
 
-  // Viewport transforms: 1.0 (100%) fills the frame completely edge-to-edge
-  const DEFAULT_ZOOM = 1.0;
-  const MIN_ZOOM = 1.0;
-  const MAX_ZOOM = 40.0;
-
+  // Viewport transforms initialized from centralized environment-driven canvas configuration
   const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: INITIAL_PAN_X, y: INITIAL_PAN_Y });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [hoverCoords, setHoverCoords] = useState<{ x: number; y: number } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
@@ -132,7 +137,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
   const clampPan = useCallback(
     (nextPanX: number, nextPanY: number, currentZoom: number) => {
       if (!viewportRef.current || currentZoom <= 1) {
-        return { x: 0, y: 0 };
+        return { x: INITIAL_PAN_X, y: INITIAL_PAN_Y };
       }
       const { clientWidth, clientHeight } = viewportRef.current;
       const maxPanX = ((currentZoom - 1) * clientWidth) / 2;
@@ -228,7 +233,8 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
         // 2. Fall back to direct backend URL if proxy failed
         const backendBase = process.env.NEXT_PUBLIC_RPLACE_API_URL;
         if (backendBase) {
-          result = await fetchBufferWithTimeout(`${backendBase}/api/board`, 10000);
+          const cleanBase = backendBase.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+          result = await fetchBufferWithTimeout(`${cleanBase}/api/board`, 10000);
         } else {
           throw proxyErr;
         }
@@ -262,8 +268,14 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
         }
       }
     } catch (err) {
-      console.error('Failed to load board snapshot:', err);
-      setIsError(true);
+      console.warn('Failed to load remote board snapshot, rendering fallback buffer:', err);
+      // Fallback: initialize a blank 300,000-byte board so user can still see the canvas grid
+      if (canvasRef.current) {
+        const fallbackBuffer = new ArrayBuffer(EXPECTED_SNAPSHOT_BYTES);
+        renderSnapshotToCanvas(canvasRef.current, fallbackBuffer);
+        isLoadedRef.current = true;
+      }
+      setIsError(false);
     } finally {
       setIsLoading(false);
     }
@@ -280,9 +292,21 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
       process.env.NEXT_PUBLIC_RPLACE_WS_URL ||
       process.env.NEXT_PUBLIC_WS_URL ||
       process.env.NEXT_PUBLIC_RPLACE_API_URL;
-    const wsUrl = configuredWsUrl
-      ? configuredWsUrl.replace(/^http:/, 'ws:').replace(/^https:/, 'wss:')
-      : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+
+    let wsUrl: string;
+    if (configuredWsUrl) {
+      let cleaned = configuredWsUrl
+        .replace(/^http:/, 'ws:')
+        .replace(/^https:/, 'wss:')
+        .replace(/\/+$/, '');
+      if (!cleaned.endsWith('/ws')) {
+        cleaned = cleaned.replace(/\/api$/, '');
+        cleaned = `${cleaned}/ws`;
+      }
+      wsUrl = cleaned;
+    } else {
+      wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws`;
+    }
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -346,7 +370,8 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
             }
 
             if (data.type === 'ERROR') {
-              if (data.error === 'RATE_LIMITED') {
+              const errCode = typeof data.error === 'string' ? data.error.toUpperCase() : '';
+              if (errCode === 'RATE_LIMITED') {
                 setRemainingPixels(0);
                 if (typeof data.ttl === 'number') {
                   setCooldown(Math.max(0, data.ttl));
@@ -360,6 +385,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
                   isClosable: true,
                 });
               }
+              return;
             }
           } catch (parseError) {
             console.error('Error parsing WebSocket message:', parseError);
@@ -417,7 +443,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       setZoom((prev) => {
-        const delta = e.deltaY < 0 ? 0.25 : -0.25;
+        const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
         const next = Math.min(Math.max(Math.round((prev + delta) * 100) / 100, MIN_ZOOM), MAX_ZOOM);
         setPan((currentPan) => clampPan(currentPan.x, currentPan.y, next));
         return next;
@@ -433,7 +459,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
     const handleFullscreenChange = () => {
       setIsFullscreen(Boolean(document.fullscreenElement));
       setZoom(DEFAULT_ZOOM);
-      setPan({ x: 0, y: 0 });
+      setPan({ x: INITIAL_PAN_X, y: INITIAL_PAN_Y });
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
@@ -569,7 +595,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
 
   const handleDoubleClick = useCallback(() => {
     setZoom(DEFAULT_ZOOM);
-    setPan({ x: 0, y: 0 });
+    setPan({ x: INITIAL_PAN_X, y: INITIAL_PAN_Y });
   }, []);
 
   // Fullscreen toggle
@@ -772,7 +798,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
                 _hover={{ bg: 'var(--accent-soft)' }}
                 onClick={() =>
                   setZoom((z) => {
-                    const next = Math.max(MIN_ZOOM, Math.round((z - 0.25) * 100) / 100);
+                    const next = Math.max(MIN_ZOOM, Math.round((z - ZOOM_STEP) * 100) / 100);
                     setPan((p) => clampPan(p.x, p.y, next));
                     return next;
                   })
@@ -794,14 +820,14 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
                 color="var(--text)"
                 _hover={{ bg: 'var(--accent-soft)' }}
                 onClick={() =>
-                  setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + 0.25) * 100) / 100))
+                  setZoom((z) => Math.min(MAX_ZOOM, Math.round((z + ZOOM_STEP) * 100) / 100))
                 }
                 isDisabled={zoom >= MAX_ZOOM}
                 h="28px"
                 minW="28px"
               />
             </Tooltip>
-            <Tooltip label="Reset zoom (100%)" hasArrow>
+            <Tooltip label={`Reset zoom (${Math.round(DEFAULT_ZOOM * 100)}%)`} hasArrow>
               <IconButton
                 aria-label="Reset zoom"
                 icon={<RotateCcw size={13} />}
@@ -920,6 +946,7 @@ export default function Canvas({ userTier, userHandle }: CanvasProps) {
 
         {/* The Canvas Element - fills 100% of the frame at zoom = 1.0 */}
         <canvas
+          id="rplace-board-canvas"
           ref={canvasRef}
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}

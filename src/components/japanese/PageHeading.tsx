@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ReactNode } from 'react';
@@ -27,7 +28,9 @@ export default function PageHeading({
 }) {
   const { colorMode } = useColorMode();
   const isLight = colorMode === 'light';
-  const resolvedAsideColor = asideColor || (isLight ? '#0F766E' : 'var(--accent)');
+
+  const resolvedAsideColor =
+    asideColor || (isLight ? '#0F766E' : 'var(--accent)');
 
   return (
     <AnimatedContent distance={20} duration={0.5}>
@@ -48,7 +51,7 @@ export default function PageHeading({
               </p>
             )}
 
-            {/* Title & Actions Row: Title on left, action buttons aligned on right */}
+            {/* Title and actions */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3 sm:mb-4">
               <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
                 <h1
@@ -60,10 +63,17 @@ export default function PageHeading({
                     letterSpacing: '0.02em',
                     color: 'var(--fg)',
                     margin: 0,
+                    textWrap: 'balance',
                   }}
                 >
-                  <BlurText text={title} delay={45} animateBy="words" direction="top" />
+                  <BlurText
+                    text={title}
+                    delay={45}
+                    animateBy="words"
+                    direction="top"
+                  />
                 </h1>
+
                 {badge}
               </div>
 
@@ -74,19 +84,21 @@ export default function PageHeading({
               )}
             </div>
 
-            {/* Description spans full width beneath the title row without awkward empty gaps */}
+            {/* Description */}
             <p
               className="oc-description break-words"
               style={{
                 maxWidth: '100%',
                 width: '100%',
                 margin: 0,
+                textWrap: 'balance',
               }}
             >
               {description}
             </p>
           </div>
 
+          {/* Optional vertical Japanese heading */}
           {children && (
             <div
               className="oc-heading-aside hidden md:block"
@@ -109,4 +121,3 @@ export default function PageHeading({
     </AnimatedContent>
   );
 }
-

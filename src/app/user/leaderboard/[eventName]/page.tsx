@@ -14,7 +14,6 @@ import {
   SimpleGrid,
   Text,
   chakra,
-  useColorMode,
 } from '@chakra-ui/react';
 import {
   Building2,
@@ -22,12 +21,13 @@ import {
   Check,
   ChevronDown,
   Crown,
+  Pencil,
   SearchX,
   Trophy,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import LeaderboardLoader from 'components/common/LeaderboardLoader';
 import ColumnsTable, {
@@ -42,6 +42,9 @@ import { getLeaderboardEventConfig } from 'config/leaderboard.config';
 import { useFeatures } from 'contexts/FeaturesContext';
 import { FetchedLeaderboard } from '../../../../api/leaderboard/leaderboard';
 import { FetchedEvents } from '../../../../api/events/events';
+import { isAdminUser } from 'utils/jwt';
+import { normalizeEventName } from 'utils/apiBase';
+import EditEventModal from 'components/modals/EditEventModal';
 
 const CONTROL_H = '44px';
 
@@ -52,11 +55,7 @@ const MEDALS = {
 } as const;
 
 function safeDecode(value: string | undefined): string {
-  try {
-    return decodeURIComponent(value ?? '');
-  } catch {
-    return value ?? '';
-  }
+  return normalizeEventName(value);
 }
 
 /* Shared look for every control in the toolbar so heights, borders and hover states match. */
@@ -85,6 +84,14 @@ function isFirstYear(item: { graduationYear?: string | number; year?: string }):
 export default function EventName() {
   const { eventName } = useParams<{ eventName: string }>();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(isAdminUser());
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCollege, setSelectedCollege] = useState('All');
   const [firstYearOnly, setFirstYearOnly] = useState(false);
@@ -117,6 +124,19 @@ export default function EventName() {
     // 2. Fall back to smart default configuration
     return getLeaderboardEventConfig(eventLabel);
   }, [features.leaderboardConfigs, eventLabel, eventName]);
+
+  const handleEventUpdated = useCallback(
+    (updatedEvent: any) => {
+      queryClient.invalidateQueries({ queryKey: ['EventInfo'] });
+      queryClient.invalidateQueries({ queryKey: ['LeadInfo'] });
+
+      const newName = updatedEvent?.name;
+      if (newName && newName.toLowerCase() !== eventLabel.toLowerCase()) {
+        router.push(`/user/leaderboard/${encodeURIComponent(newName)}`);
+      }
+    },
+    [eventLabel, queryClient, router]
+  );
 
   const { data: eventData } = useQuery({
     queryKey: ['EventInfo'],
@@ -162,13 +182,13 @@ export default function EventName() {
     setSelectedCollege('All');
     setFirstYearOnly(false);
     setSearchQuery('');
-  }, [eventName]);
+  }, [eventLabel]);
 
   const { data: LeadData, isLoading } = useQuery({
-    queryKey: ['LeadInfo', eventName],
-    queryFn: () => FetchedLeaderboard(eventName),
+    queryKey: ['LeadInfo', eventLabel],
+    queryFn: () => FetchedLeaderboard(eventLabel),
     refetchInterval: 10000,
-    enabled: !!eventName,
+    enabled: !!eventLabel,
   });
 
   // Base list of participants eligible for ranking (excluding mentors & maintainers for Opencode)
@@ -425,6 +445,30 @@ export default function EventName() {
                         </MenuItem>
                       );
                     })}
+                    {isAdmin && (
+                      <>
+                        <Box my="4px" mx="6px" borderTop="1px solid var(--border)" />
+                        <MenuItem
+                          onClick={() => setIsEditModalOpen(true)}
+                          bg="transparent"
+                          _hover={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
+                          _focus={{ bg: 'var(--accent-soft)', color: 'var(--accent)' }}
+                          borderRadius="8px"
+                          mx="6px"
+                          w="calc(100% - 12px)"
+                          px="12px"
+                          py="8px"
+                          fontSize="12px"
+                          fontWeight="600"
+                          color="var(--accent)"
+                        >
+                          <Flex align="center" gap="8px">
+                            <Pencil size={13} />
+                            <Text noOfLines={1}>Edit &ldquo;{eventLabel}&rdquo;</Text>
+                          </Flex>
+                        </MenuItem>
+                      </>
+                    )}
                   </MenuList>
                 </Portal>
               </Menu>
@@ -582,6 +626,28 @@ export default function EventName() {
             Clear
           </chakra.button>
         )}
+
+        {isAdmin && (
+          <chakra.button
+            type="button"
+            onClick={() => setIsEditModalOpen(true)}
+            aria-label="Edit this event"
+            display="flex"
+            alignItems="center"
+            gap="8px"
+            {...controlStyle}
+            _hover={{
+              borderColor: 'var(--accent)',
+              bg: 'var(--surface-2)',
+              color: 'var(--accent)',
+            }}
+          >
+            <Box display="flex" color="var(--accent)">
+              <Pencil size={14} />
+            </Box>
+            <span>Edit Event</span>
+          </chakra.button>
+        )}
         </Flex>
 
       </Flex>
@@ -604,26 +670,26 @@ export default function EventName() {
         </Flex>
       )}
 
-      {/* ─── 3. TOP 3 SPOTLIGHT (PSD Reference Reproduction) ─── */}
+      {/* ─── 3. TOP 3 SPOTLIGHT ─── */}
       {showSpotlight && (
-        <Box w="100%" pr={{ base: '0px', md: '28px' }}>
+        <Box w="100%">
           <Flex align="center" gap="10px" mb="18px" px="4px">
             <Text
               fontSize="11px"
-              fontWeight="700"
-              letterSpacing="0.16em"
+              fontWeight="600"
+              letterSpacing="0.08em"
               textTransform="uppercase"
               color="var(--muted)"
               fontFamily="var(--f-mono)"
             >
-              {firstYearOnly ? 'TOP FRESHERS · PODIUM' : 'TOP STANDINGS · PODIUM'}
+              {firstYearOnly ? 'Top Freshers' : 'Podium Standings'}
             </Text>
             <Box flex="1" h="1px" bg="var(--border)" opacity={0.6} />
           </Flex>
 
           <Flex
             direction="column"
-            gap={{ base: '16px', md: '22px' }}
+            gap={{ base: '16px', md: '20px' }}
             w="100%"
             align="center"
           >
@@ -679,6 +745,16 @@ export default function EventName() {
         >
           <ColumnsTable tableData={tableRows} eventName={eventLabel} />
         </Box>
+      )}
+
+      {/* Edit Event Modal for Admins */}
+      {isAdmin && (
+        <EditEventModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          eventName={eventLabel}
+          onSuccess={handleEventUpdated}
+        />
       )}
     </Flex>
   );
@@ -853,9 +929,9 @@ const PodiumBannerCard = React.memo(
       justifyContent="space-between"
       px={{ base: '12px', sm: '16px', md: '20px' }}
       py={{ base: '12px', md: '0px' }}
-      transition="transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease"
+      transition="transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease"
       _hover={{
-        transform: 'translateY(-4px)',
+        transform: 'translateY(-2px)',
         borderColor: config.borderHover,
         boxShadow: config.boxShadowHover,
       }}
@@ -1001,26 +1077,25 @@ const PodiumBannerCard = React.memo(
         </Flex>
       </Flex>
 
-      {/* 3. Right Zone: Square Avatar Container */}
+      {/* 3. Right Zone: Avatar Container */}
       <Flex
         align="center"
         justify={{ base: 'center', md: 'flex-end' }}
         shrink={0}
         zIndex={3}
-        transform={{ base: 'none', md: 'translateX(26px)' }}
-        pr={{ base: '2px', md: '8px' }}
+        pr={{ base: '4px', md: '8px' }}
       >
         <Box
-          w={{ base: '56px', sm: '72px', md: '96px', lg: '104px' }}
-          h={{ base: '56px', sm: '72px', md: '96px', lg: '104px' }}
+          w={{ base: '56px', sm: '68px', md: '84px', lg: '92px' }}
+          h={{ base: '56px', sm: '68px', md: '84px', lg: '92px' }}
           bg={config.avatarBoxBg}
           border={config.avatarBoxBorder}
           boxShadow={config.avatarBoxShadow}
-          borderRadius="6px"
+          borderRadius="12px"
           overflow="hidden"
           p={{ base: '2px', md: '3px' }}
-          transition="transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
-          _groupHover={{ transform: 'scale(1.06)' }}
+          transition="transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+          _groupHover={{ transform: 'scale(1.04)' }}
         >
           <ContributorAvatar
             name={row.name}

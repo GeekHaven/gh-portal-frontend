@@ -34,7 +34,16 @@ export default function Footer() {
             </Link>
 
             <p className="text-sm text-[#AEBCC7] leading-relaxed">
-              Organized by <span className="text-[#F4F1E8] font-medium">GeekHaven</span>, the official technical society of IIIT Allahabad. Empowering student developers to master production open source and connect with world-class engineering teams.
+              Organized by{' '}
+              <a
+                href="https://web.geekhaven.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#F4F1E8] font-medium hover:text-[#B8E5D5] underline decoration-[#58B99A]/40 underline-offset-2 transition-colors"
+              >
+                GeekHaven
+              </a>
+              , the official technical society of IIIT Allahabad. Empowering student developers to master production open source and connect with world-class engineering teams.
             </p>
           </div>
 
@@ -45,29 +54,39 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3 text-sm text-[#AEBCC7]">
               <li>
-                <a href="#about" className="hover:text-[#B8E5D5] transition-colors">
-                  About OpenCode
-                </a>
+                <Link href="/user/leaderboard/Opencode'26" className="hover:text-[#B8E5D5] transition-colors">
+                  Leaderboard
+                </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-[#B8E5D5] transition-colors">
-                  How It Works
-                </a>
+                <Link href="/user/events" className="hover:text-[#B8E5D5] transition-colors">
+                  Events &amp; Tracks
+                </Link>
               </li>
               <li>
-                <a href="#projects" className="hover:text-[#B8E5D5] transition-colors">
-                  Tracks &amp; Repositories
-                </a>
+                <Link href="/user/repos" className="hover:text-[#B8E5D5] transition-colors">
+                  Repositories
+                </Link>
               </li>
               <li>
-                <a href="#testimonials" className="hover:text-[#B8E5D5] transition-colors">
-                  Community Testimonials
-                </a>
+                <Link href="/user/canvas" className="hover:text-[#B8E5D5] transition-colors">
+                  Community Canvas (r/Place)
+                </Link>
               </li>
               <li>
-                <a href="#faq" className="hover:text-[#B8E5D5] transition-colors">
+                <Link href="/user/geekstore" className="hover:text-[#B8E5D5] transition-colors">
+                  Geekstore
+                </Link>
+              </li>
+              <li>
+                <Link href="/user/winners" className="hover:text-[#B8E5D5] transition-colors">
+                  Hall of Fame
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="hover:text-[#B8E5D5] transition-colors">
                   Frequently Asked Questions
-                </a>
+                </Link>
               </li>
               <li>
                 <a
@@ -133,6 +152,14 @@ export default function Footer() {
 
             <div className="space-y-2.5 text-sm text-[#AEBCC7]">
               <a
+                href="https://web.geekhaven.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:text-[#B8E5D5] transition-colors"
+              >
+                GeekHaven Website
+              </a>
+              <a
                 href="https://discord.gg/SxBATvUPnC"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -146,7 +173,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="block hover:text-[#B8E5D5] transition-colors"
               >
-                GitHub Organizations
+                GitHub Organization
               </a>
               <a
                 href="https://twitter.com/geekhaveniiita"
