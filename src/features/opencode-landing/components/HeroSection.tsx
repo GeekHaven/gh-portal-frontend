@@ -187,7 +187,7 @@ export default function HeroSection() {
                 glow={1}
                 followMouse
                 proximity={250}
-                href="/user/leaderboard/Opencode"
+                href="/user/leaderboard/Opencode'26"
                 className="!bg-[#B8E5D5] hover:!bg-[#A3DAC7] !text-[#0C1C2C] font-semibold text-sm sm:text-base shadow-lg shadow-[#58B99A]/20"
               >
                 <Trophy className="w-4 h-4 text-[#0C1C2C]" />
